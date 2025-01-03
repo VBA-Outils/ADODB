@@ -17,7 +17,7 @@ Attribute VB_Exposed = False
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 '' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 '
-' Copyright (c) 2023, Vincent ROSSET
+' Copyright (c) 2024, Vincent ROSSET
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
