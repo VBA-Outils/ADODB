@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ''
 ' VBA-ADODB v1.0
-' https://github.com/VBA-Outils/VBA-ADODB-Stream
+' https://github.com/VBA-Outils/ADODB
 '
 ' Gestion des fichiers via ADODB
 '
