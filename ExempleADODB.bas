@@ -45,10 +45,10 @@ Public Sub EcrireLireFichiers()
         .Ouvrir
     End With
     
-    ' Lecture des enregsitrements
+    ' Lecture des enregistrements
     While Not oFichier.FinFichier
         sEnreg = oFichier.LireEnregistrement
-        ' Afficher l'enregsitrement lu dans la console VBA
+        ' Afficher l'enregistrement lu dans la console VBA
         Debug.Print sEnreg
     Wend
     
