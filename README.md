@@ -1,6 +1,6 @@
 # Outils_VBA/ADODB
 
- Classe VBA qui permait de lire et écrire des fichiers (texte ou binaire) via les flux ADODB.<br>
+ Classe VBA qui permet de lire et écrire des fichiers (texte ou binaire) via les flux ADODB.<br>
  Les propriétés de la classe permettent de définir les caractéristiques des fichiers, les méthodes de gérer les fichiers (ouverture, lecture/écriture, fermeture).<br>
  Des boîtes de dialogue sont proposées afin de pouvoir sélectionner un répertoire, un fichier.<br>
 <br>
