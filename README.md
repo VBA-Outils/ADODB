@@ -1,6 +1,5 @@
 # Outils_VBA/ADODB
-
-<h1>Outils-VBA/ADODB : Automatisation des Accès aux Fichiers dans Excel</h1>
+<h1>Automatisation des Accès aux Fichiers dans Excel</h1>
 <p>Découvrez notre projet VBA conçu pour simplifier et automatiser les accès aux fichiers dans Microsoft Excel. Une solution robuste pour les développeurs VBA expérimentés cherchant à optimiser leur gestion des fichiers.</p>
 <p>Notre classe principale encapsule des propriétés et des méthodes essentielles pour simplifier les opérations de traitement des fichiers. Elle offre une flexibilité inégalée pour définir les caractéristiques physiques des fichiers et gérer les accès.</p>
 <p>Les méthodes intégrées effectuent des contrôles en amont des actions, assurant l'intégrité et la sécurité des opérations sur les fichiers. Cette approche minimise les erreurs.</p>
