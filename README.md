@@ -7,62 +7,62 @@
 <h2>Propriétés Clés de la Classe</h2>
 <h3>Configuration Flexible</h3>
 <ul>
-<li>TypeFichier : Type du fichier (texte ou binaire)</li>
-<li>Encodage : Encodage du fichier (enum)</li>
-<li>EncodageTxt : Encodage du fichier (saisie libre)</li>
-<li>SeparateurLigne : Separateur de lignes d'un fichier texte</li>
+<li>TypeFichier : type du fichier (texte ou binaire)</li>
+<li>Encodage : encodage du fichier (enum)</li>
+<li>EncodageTxt : encodage du fichier (saisie libre)</li>
+<li>SeparateurLigne : séparateur de lignes d'un fichier texte</li>
 </ul>
 <h3>Gestion des Accès</h3>
 <ul>
-<li>TypeAcces : Acces au fichier (lecture, ecriture)</li>
-<li>NomFichier : nom du fichier (y compris le chemin d'acces)</li>
-<li>Repertoire : Repertoire selectionne dune boite de dialogue</li>
-<li>Fichier: Permettre de pointer sur un objet ADODB Stream en dehors de la classe</li>
+<li>TypeAcces : accès au fichier (lecture, écriture)</li>
+<li>NomFichier : nom du fichier (y compris le chemin d'accès)</li>
+<li>Fichier: permettre de pointer sur un objet ADODB Stream en dehors de la classe</li>
 </ul>
 <h3>Interface Utilisateur</h3>
 <ul>
-<li>TitreBoiteDeDialogue : Titre affiche dans les boites de dialogue</li>
-<li>LibelleFiltre : Libelle du filtre utilise pour afficher les fichiers dans une boite de dialogue</li>
-<li>ExtensionFiltre : Filtre des extensions de fichier utilise dans une boite de dialogue</li>
-<li>NomInitialFichier : Nom initial du fichier affiche dans une boite de dialogue lors d'un enregsitrement sous</li>
-<li>Filtre : Filtre des extensions (parmi celles proposees par Excel) de fichier utilise dans une boite de dialogue</li>
+<li>TitreboîteDeDialogue : titre affiché dans les boîtes de dialogue</li>
+<li>LibelléFiltre : libellé du filtre utilise pour afficher les fichiers dans une boîte de dialogue</li>
+<li>ExtensionFiltre : filtre des extensions de fichier utilise dans une boîte de dialogue</li>
+<li>NomInitialFichier : nom initial du fichier affiché dans une boîte de dialogue lors d'un enregistrement  sous</li>
+<li>Filtre : filtre des extensions (parmi celles proposées par Excel) de fichier utilise dans une boîte de dialogue</li>
 </ul>
 <h3>Suivi des Opérations</h3>
 <ul>
-<li>NbreEnregLus : Nombre d'enregistrements lus</li>
-<li>NbreEnregEcrits : Nombre d'enregistrements ecrits</li>
-<li>NbreOctectsLus : Nombre d'octets lus</li>
-<li>NbreOctectsEcrits : Nombre d'octets ecrits</li>
+<li>NbreEnregLus : nombre d'enregistrements lus</li>
+<li>NbreEnregEcrits : nombre d'enregistrements écrits</li>
+<li>NbreOctectsLus : nombre d'octets lus</li>
+<li>NbreOctectsEcrits : nombre d'octets écrits</li>
 </ul>
-<h2>Méthodes Essentielles pour la Manipulation de Fichiers</h2>
+<h2>Méthodes essentielles pour la manipulation de fichiers</h2>
 <h3>Méthodes Ouvrir et Fermer pour une gestion sécurisée des flux de données via ADODB.</h3>
 <ul>
-<li>Ouvrir : Ouvrir un fichier via ADODB</li>
-<li>Fermer : Fermer un fichier</li>
+<li>Ouvrir : ouvrir un fichier via ADODB</li>
+<li>Fermer : fermer un fichier</li>
 </ul>
 <h3>Lecture des données : extraire efficacement les données de vos fichiers.</h3>
 <ul>
-<li>LireFichier : Lire l'integralite d'un fichier (texte ou binaire)</li>
-<li>LireEnregistrement : Lire le prochain enregistrement (jusqu'au prochain separateur de lignes) d'un fichier texte</li>
-<li>FinFichier : Fin du fichier texte atteinte</li>
-<li>Lire : Lire n caracteres d'un fichier (texte ou binaire)</li>
+<li>LireFichier : lire l'integralité d'un fichier (texte ou binaire)</li>
+<li>LireEnregistrement : lire le prochain enregistrement (jusqu'au prochain séparateur de lignes) d'un fichier texte</li>
+<li>FinFichier : fin du fichier texte atteinte</li>
+<li>Lire : lire n caractères d'un fichier (texte ou binaire)</li>
 </ul>
 <h3>Écriture de données : sauvegarder vos données de manière structurée.</h3>
 <ul>
-<li>Ecrire : Ecrire des donnees dans un fichier texte ou binaire</li>
-<li>EcrireEnregistrement : Ecrire un enregistrement dans un fichier texte</li>
-<li>EnregistrerSous : Enregistrer sous le nom de fichier le contenu de l'objet ADODB.Stream</li>
+<li>Ecrire : écrire des données dans un fichier texte ou binaire</li>
+<li>EcrireEnregistrement : écrire un enregistrement dans un fichier texte</li>
+<li>EnregistrerSous : enregistrer sous le nom du fichier le contenu de l'objet ADODB.Stream</li>
 </ul>
 <h3>Méthodes pour afficher des boîtes de dialogue intuitives pour la sélection de fichiers et répertoires.</h3>
 <ul>
-<li>SelectionnerFichierEnregistrerSous: Afficher la boite de dialogue de selection d'un fichier a enregsitrer sous (avec saisie du nom du fichier)</li>
-<li>SelectionnerFichier : Afficher la boite de dialogue de selection d'un fichier</li>
-<li>SelectionnerRepertoire : Afficher la boite de dialogue de selection d'un repertoire</li>
+<li>Repertoire : répertoire sélectionné dans une boîte de dialogue</li>
+<li>SelectionnerFichierEnregistrerSous: afficher la boîte de dialogue de sélection d'un fichier à enregsitrer sous (avec saisie du nom du fichier)</li>
+<li>SelectionnerFichier : afficher la boîte de dialogue de sélection d'un fichier</li>
+<li>SelectionnerRepertoire : afficher la boîte de dialogue de sélection d'un répertoire</li>
 </ul>
 <h2>Fonctionnalités de gestion des fichiers</h2>
 <ul>
-<li>EstFichierVolumineux : Verifier si un fichier depasse 4 Go (taille maximale des fichiers texte via ADODB.stream)</li>
-<li>FichierExiste : Verifier si le fichier dont le nom est "NomFichier" existe</li>
-<li>RepertoireExiste : Verifier si le repertoire dont le nom est "NomRepertoire" existe</li>
-<li>LongueurFichier : Retourner la longueur d'un fichier en octets</li>
+<li>EstFichierVolumineux : vérifier si un fichier dépasse 4 Go (taille maximale des fichiers texte via ADODB.stream)</li>
+<li>FichierExiste : vérifier si le fichier dont le nom est "NomFichier" existe</li>
+<li>RepertoireExiste : vérifier si le répertoire dont le nom est "NomRepertoire" existe</li>
+<li>LongueurFichier : retourner la longueur d'un fichier en octets</li>
 </ul>
