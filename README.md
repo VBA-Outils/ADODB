@@ -22,8 +22,8 @@
 <li><strong>TitreboiteDeDialogue</strong> : titre affiché dans les boîtes de dialogue</li>
 <li><strong>LibelleFiltre</strong> : libellé du filtre utilise pour afficher les fichiers dans une boîte de dialogue</li>
 <li><strong>ExtensionFiltre</strong> : filtre des extensions de fichier utilise dans une boîte de dialogue</li>
-<li><strong>NomInitialFichier</strong> : nom initial du fichier affiché dans une boîte de dialogue lors d'un enregistrement  sous</li>
-<li><strong>Filtre</strong> : filtre des extensions (parmi celles proposées par Excel) de fichier utilise dans une boîte de dialogue</li>
+<li><strong>NomInitialFichier</strong> : nom initial du fichier affiché dans une boîte de dialogue lors d'un enregistrement sous</li>
+<li><strong>Filtre</strong> : filtre des extensions (parmi celles proposées par Excel) de fichier, utilisé dans une boîte de dialogue</li>
 </ul>
 <h3>Suivi des opérations</h3>
 <ul>
