@@ -13,7 +13,7 @@
 </ul>
 <h3>Gestion des Accès</h3>
 <ul>
-<li><font color="OrangeRed">TypeAcces</font> : accès au fichier (lecture, écriture)</li>
+<li><font color="#FF4500">TypeAcces</font> : accès au fichier (lecture, écriture)</li>
 <li>NomFichier : nom du fichier (y compris le chemin d'accès)</li>
 <li>Fichier: permettre de pointer sur un objet ADODB Stream en dehors de la classe</li>
 </ul>
