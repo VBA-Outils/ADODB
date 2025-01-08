@@ -17,7 +17,7 @@ Attribute VB_Exposed = False
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 '' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 '
-' Copyright (c) 2024, Vincent ROSSET
+' Copyright (c) 2023, Vincent ROSSET
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -451,8 +451,8 @@ End Property
 ' * Propriété : Filtre à appliquer lors de la sélection des fichiers à enregistrer sous               *
 ' *---------------------------------------------------------------------------------------------------*
 Property Let Filtre(lIndexFiltre As EnumIndexFiltre)
-    
-    If lIndexFiltre < 1 Or lIndexFiltre > 29 Then
+
+    If lIndexFiltre < 0 Or lIndexFiltre > 29 Then
         Err.Raise vbObjectError + 1000, , "[lIndexFiltre] Le filtre " & lIndexFiltre & " est invalide."
     Else
         plIndexFiltre = lIndexFiltre
@@ -762,12 +762,17 @@ Public Sub SelectionnerFichier()
         End If
         .InitialView = msoFileDialogViewDetails
         ' Si filtre ou extension non renseigné
-        If psLibelleFiltre = "" Or psExtensionFiltre = "" Then
-            .Filters.Add "Tous les fichiers", "*.*", 1
+        If plIndexFiltre <> INDEX_FILTRE_NON_DEFINI Then
+            .FilterIndex = plIndexFiltre
         Else
-            .Filters.Add psLibelleFiltre, psExtensionFiltre, 1
+            If psLibelleFiltre = "" Or psExtensionFiltre = "" Then
+                ' Tous les fichiers par défaut
+                .FilterIndex = 1
+            Else
+                .Filters.Add psLibelleFiltre, psExtensionFiltre, 1
+                .FilterIndex = 0
+            End If
         End If
-        .FilterIndex = 1
         ' Titre par défaut si non renseigné
         If psTitreBoiteDialogue = "" Then
             .Title = "Sélectionner le répertoire et le fichier"
