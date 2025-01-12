@@ -1,4 +1,8 @@
 # Outils_VBA/ADODB
+<h1>Licence</h1>
+<p>Ce projet est distribué sous licence MIT. Consultez le fichier LICENSE pour plus de détails.</p>
+<h1>Prérequis</h1>
+<p>Environnement de développement : Microsoft Visual Basic for Applications (VBA)</p>
 <h1>Automatisation des accès aux fichiers dans Excel</h1>
 <p>Découvrez notre projet VBA conçu pour simplifier et automatiser les accès aux fichiers dans Microsoft Excel. Une solution robuste pour les développeurs VBA expérimentés cherchant à optimiser leur gestion des fichiers.</p>
 <p>Notre classe encapsule des propriétés et des méthodes essentielles pour simplifier les opérations de traitement des fichiers. Elle offre une flexibilité pour définir les caractéristiques des fichiers et gérer les accès.</p>
