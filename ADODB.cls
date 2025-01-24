@@ -7,17 +7,15 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-''
-' VBA-ADODB v1.0
+'
 ' https://github.com/VBA-Outils/ADODB
 '
 ' Gestion des fichiers via ADODB
 '
-' @Class ADODB
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 '' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 '
-' Copyright (c) 2023, Vincent ROSSET
+' Copyright (c) 2024, Vincent ROSSET
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -976,23 +974,23 @@ Private Sub Class_Initialize()
     ' Ajout des encodages (à compléter si nécessaire)
     ' clé : libellé de l'encodage identique aux clés de registre charset de windows
     ' La liste ci-dessous doit être identique à l'enum EnumListeEncodage
-    DicEncodage.Add "Non défini", 0       ' NON_DEFINI
-    DicEncodage.Add "iso-8859-1", 1       ' ASCII
-    DicEncodage.Add "iso-8859-2", 2       ' LATIN_2
-    DicEncodage.Add "iso-8859-4", 3       ' LATIN_4
-    DicEncodage.Add "iso-8859-5", 4       ' CYRILLIQUE
-    DicEncodage.Add "iso-8859-7", 5       ' GREC
-    DicEncodage.Add "iso-8859-9", 6       ' LATIN_5
-    DicEncodage.Add "ks_c_5601-1987", 7   ' COREEN
-    DicEncodage.Add "utf-7", 8            ' UTF_7
-    DicEncodage.Add "utf-8", 9            ' UTF_8
-    DicEncodage.Add "Windows-1250", 10    ' CP1250
-    DicEncodage.Add "Windows-1251", 11    ' CP1251
-    DicEncodage.Add "windows-1252", 12    ' X_ANSI
-    DicEncodage.Add "windows-874", 13     ' ISO_8859_11
-    DicEncodage.Add "iso-8859-6", 14      ' ARABE
-    DicEncodage.Add "Autre", 15           ' AUTRE
-
+    DicEncodage.Add "Non défini", NON_DEFINI
+    DicEncodage.Add "iso-8859-1", ASCII
+    DicEncodage.Add "iso-8859-2", LATIN_2
+    DicEncodage.Add "iso-8859-4", LATIN_4
+    DicEncodage.Add "iso-8859-5", CYRILLIQUE
+    DicEncodage.Add "iso-8859-7", GREC
+    DicEncodage.Add "iso-8859-9", LATIN_5
+    DicEncodage.Add "ks_c_5601-1987", COREEN
+    DicEncodage.Add "utf-7", UTF_7
+    DicEncodage.Add "utf-8", UTF_8
+    DicEncodage.Add "Windows-1250", CP1250
+    DicEncodage.Add "Windows-1251", CP1251
+    DicEncodage.Add "windows-1252", X_ANSI
+    DicEncodage.Add "windows-874", ISO_8859_11
+    DicEncodage.Add "iso-8859-6", ARABE
+    DicEncodage.Add "Autre", AUTRE
+    
     ' Fichier pas encore ouvert
     plStatutFlux = STATUT_FICHIER_INITIAL
     plNbreEnregLus = 0
