@@ -1,4 +1,4 @@
-# Outils_VBA/ADODB
+# VBA_Outils/ADODB
 <h1>Licence</h1>
 <p>Ce projet est distribué sous licence MIT. Consultez le fichier LICENSE pour plus de détails.</p>
 <h1>Prérequis</h1>
