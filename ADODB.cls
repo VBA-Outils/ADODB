@@ -52,6 +52,7 @@ Attribute VB_Exposed = False
 ' Cliquez sur le bouton OK pour valider.
 
 Option Explicit
+Option Compare Text
 
 '-----------------------------------------------------------------------------------------------------------------------------------------------------------
 '
@@ -230,18 +231,18 @@ Property Let TypeFichier(lTypeFichier As EnumTypeFichier)
 
     ' Vérifier le type de fichier
     Select Case lTypeFichier
-        Case FICHIER_BINAIRE:
+        Case FICHIER_BINAIRE
             Select Case True
-                Case psEncodage <> "":
+                Case psEncodage <> ""
                     ' L'encodage n'est pas nécessaire pour lire un fichier binaire
                     Err.Raise vbObjectError + 1000, , "[TypeFichier] L'encodage ne doit pas être défini pour les fichiers binaires."
-                Case plSeparateurLigne <> SEPARATEUR_NON_DEFINI:
+                Case plSeparateurLigne <> SEPARATEUR_NON_DEFINI
                     ' Le séparateur de lignes n'est pas nécessaire pour lire un fichier binaire
                     Err.Raise vbObjectError + 1000, , "[TypeFichier] Le séparateur de lignes ne doit pas être défini pour les fichiers binaires."
-                Case Else:
+                Case Else
                     plTypeFichier = lTypeFichier
             End Select
-        Case FICHIER_TEXTE:
+        Case FICHIER_TEXTE
             plTypeFichier = lTypeFichier
         Case Else
             Err.Raise vbObjectError + 1000, , "[TypeFichier] Le type de fichier " & lTypeFichier & " est invalide."
@@ -260,16 +261,16 @@ Property Let Encodage(lEncodage As EnumListeEncodage)
 
     Select Case True
         ' L'encodage doit être renseigné
-        Case lEncodage = NON_DEFINI:
+        Case lEncodage = NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[Encodage] L'encodage n'est pas renseigné."
-        Case plTypeFichier = FICHIER_BINAIRE:
+        Case plTypeFichier = FICHIER_BINAIRE
             ' L'encodage n'est pas nécessaire pour lire un fichier binaire
             Err.Raise vbObjectError + 1000, , "[Encodage] L'encodage ne doit pas être défini pour les fichiers binaires."
             ' Vérifie que l'encodage existe dans l'enum
-        Case EnumEncodageExiste(lEncodage) = True:
+        Case EnumEncodageExiste(lEncodage) = True
             plEncodage = lEncodage
             psEncodage = DicEncodage.Keys(lEncodage)
-        Case Else:
+        Case Else
             ' Si l'encodage est absent de l'enum ListeEncodage et du dictionnaire dicEncodage alors une erreur est retournée.
             ' La liste des encodages n'est pas exhaustive et doit être complétée si nécessaire, sinon utiliser la propriété EncodageTxt.
             Err.Raise vbObjectError + 2, , "[Encodage] L'encodage n'existe pas dans l'enum EnumListeEncodage."
@@ -290,13 +291,13 @@ Property Let EncodageTxt(sEncodage As String)
 
     Select Case True
         ' L'encodage doit être renseigné
-        Case Trim(sEncodage) = "":
+        Case Trim(sEncodage) = ""
             Err.Raise vbObjectError + 3, , "[EncodageTxt] L'encodage n'est pas renseigné."
         ' L'encodage n'est pas nécessaire pour lire un fichier binaire
-        Case plTypeFichier = FICHIER_BINAIRE:
+        Case plTypeFichier = FICHIER_BINAIRE
             Err.Raise vbObjectError + 1000, , "[EncodageTxt] L'encodage ne doit pas être défini pour les fichiers binaires."
         ' Aucun contrôle de l'encodage, la saisie est libre.
-        Case Else:
+        Case Else
             psEncodage = sEncodage
             plEncodage = AUTRE
     End Select
@@ -476,15 +477,15 @@ Public Sub Ouvrir()
     
     Select Case True
         ' Vérifier le type de fichier
-        Case plTypeFichier = FICHIER_NON_DEFINI:
+        Case plTypeFichier = FICHIER_NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[Ouvrir] Le type de fichier n'est pas défini."
         ' Vérifier que l'encodage est renseigné si le fichier est de type Texte
-        plTypeFichier = FICHIER_TEXTE And psEncodage = "":
+        Case plTypeFichier = FICHIER_TEXTE And psEncodage = ""
             Err.Raise vbObjectError + 1000, , "[Ouvrir] L'encodage n'est pas défini."
         ' Vérifier que le type d'accès est renseigné
-        Case psTypeAcces = ACCES_NON_DEFINI:
+        Case psTypeAcces = ACCES_NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[Ouvrir] Le type d'accès n'est pas défini."
-        Case psTypeAcces = ACCES_LECTURE:
+        Case psTypeAcces = ACCES_LECTURE
             ' Si le nom de fichier n'est pas renseigné
             If Trim(psNomFichier) = "" Then
                 Err.Raise vbObjectError + 1000, , "[Ouvrir] Le nom du fichier n'est pas défini."
@@ -526,15 +527,15 @@ Public Function Lire(lNbreCarALire As Long) As String
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT:
+        Case plStatutFlux <> STATUT_FICHIER_OUVERT
             Err.Raise vbObjectError + 1000, , "[Lire] Le fichier n'a pas été ouvert."
         ' Le nombre de caractères à lire doit être > 0
-        Case lNbreCarALire <= 0:
+        Case lNbreCarALire <= 0
             Err.Raise vbObjectError + 1000, , "[Lire] Le nombre de caractères à lire n'est pas valide."
         ' Seule la lecture complète d'un fichier binaire est possible
-        Case plTypeFichier = FICHIER_BINAIRE:
+        Case plTypeFichier = FICHIER_BINAIRE
             Err.Raise vbObjectError + 1000, , "[Lire] La lecture partielle d'un fichier binaire n'est pas possible."
-        Case Else:
+        Case Else
             ' Lire les n caractères suivants
             Lire = poFichier.ReadText(lNbreCarALire)
             plNbreOctectsLus = plNbreOctectsLus + Len(Lire)
@@ -552,18 +553,18 @@ Public Function LireEnregistrement() As String
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT:
+        Case plStatutFlux <> STATUT_FICHIER_OUVERT
             Err.Raise vbObjectError + 1000, , "[LireEnregistrement] Le fichier n'a pas été ouvert."
         ' Vérifie que le séparateur a bien été défini pour la lecture par ligne
-        Case plSeparateurLigne = SEPARATEUR_NON_DEFINI:
+        Case plSeparateurLigne = SEPARATEUR_NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[LireEnregistrement] Le séparateur de ligne n'est pas défini."
         ' Lecture du prochain enregistrement
-        Case plTypeFichier = FICHIER_TEXTE:
+        Case plTypeFichier = FICHIER_TEXTE
             LireEnregistrement = poFichier.ReadText(LIRE_ENREG_SUIVANT)
             plNbreEnregLus = plNbreEnregLus + 1
             plNbreOctectsLus = plNbreOctectsLus + Len(LireEnregistrement)
         ' Les fichiers binaires ne comportent pas de séparateur, par conséquent, il n'est pas possible de lire un enregistrement
-        Case plTypeFichier = FICHIER_BINAIRE:
+        Case plTypeFichier = FICHIER_BINAIRE
             Err.Raise vbObjectError + 1000, , "[LireEnregistrement] La lecture d'un enregistrement d'un fichier binaire n'est pas possible."
     End Select
     
@@ -590,14 +591,14 @@ Public Function LireFichier() As Variant
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT:
+        Case plStatutFlux <> STATUT_FICHIER_OUVERT
             Err.Raise vbObjectError + 1000, , "[LireFichier] Le fichier n'a pas été ouvert."
         ' Lire entièrement un fichier binaire
-        Case plTypeFichier = FICHIER_BINAIRE:
+        Case plTypeFichier = FICHIER_BINAIRE
             LireFichier = poFichier.Read(LIRE_FICHIER)
             plNbreOctectsLus = plNbreOctectsLus + Len(LireFichier)
         ' Lire entièrement un fichier texte
-        Case plTypeFichier = FICHIER_TEXTE:
+        Case plTypeFichier = FICHIER_TEXTE
             LireFichier = poFichier.ReadText(LIRE_FICHIER)
             plNbreOctectsLus = plNbreOctectsLus + Len(LireFichier)
     End Select
@@ -614,15 +615,15 @@ Public Sub EcrireEnregistrement(sEnregistrement As String)
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT:
+        Case plStatutFlux <> STATUT_FICHIER_OUVERT
             Err.Raise vbObjectError + 26, , "[EcrireEnregistrement] Le fichier n'a pas été ouvert."
         ' Ecriture de l'enregistrement dans le fichier texte. Les séparateurs CR/LF doivent être présents dans l'enregistrement.
-        Case plTypeFichier = FICHIER_TEXTE:
+        Case plTypeFichier = FICHIER_TEXTE
             poFichier.WriteText sEnregistrement
             plNbreEnregEcrits = plNbreEnregEcrits + 1
             plNbreOctectsEcrits = plNbreOctectsEcrits + Len(sEnregistrement)
         ' Il n'est pas possible d'écrire un enregistrement dans un fichier binaire.
-        Case plTypeFichier = FICHIER_BINAIRE:
+        Case plTypeFichier = FICHIER_BINAIRE
             Err.Raise vbObjectError + 1000, , "[EcrireEnregistrement] L'écriture d'un enregistrement dans un fichier binaire n'est pas possible."
     End Select
     
@@ -638,14 +639,14 @@ Public Sub Ecrire(vDonnees As Variant)
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT:
+        Case plStatutFlux <> STATUT_FICHIER_OUVERT
             Err.Raise vbObjectError + 26, , "[Ecrire] Le fichier n'a pas été ouvert."
         ' Ecrire le fichier binaire (en une seule fois)
-        Case plTypeFichier = FICHIER_BINAIRE:
+        Case plTypeFichier = FICHIER_BINAIRE
             poFichier.Write vDonnees
             plNbreOctectsEcrits = plNbreOctectsEcrits + Len(vDonnees)
         ' Il n'est pas possible d'écrire des données brutes dans un fichier texte.
-        Case plTypeFichier = FICHIER_TEXTE:
+        Case plTypeFichier = FICHIER_TEXTE
             Err.Raise vbObjectError + 1000, , "[Ecrire] L'écriture de données binaires dans fichier texte n'est pas possible."
     End Select
     
@@ -661,12 +662,12 @@ End Sub
 Public Sub EnregistrerSous()
 
     Select Case True
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT:
+        Case plStatutFlux <> STATUT_FICHIER_OUVERT
             ' Accès impossible à un fichier non ouvert
             Err.Raise vbObjectError + 26, , "[EnregistrerSous] Le fichier n'a pas été ouvert."
-        Case Trim(psNomFichier) = "":
+        Case Trim(psNomFichier) = ""
             Err.Raise vbObjectError + 1000, , "[EnregistrerSous] Le nom du fichier n'est pas défini."
-        Case plTypeFichier = FICHIER_NON_DEFINI:
+        Case plTypeFichier = FICHIER_NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[EnregistrerSous] Le type de fichier n'est pas défini."
         Case Else
             poFichier.SaveToFile psNomFichier, plTypeFichier
