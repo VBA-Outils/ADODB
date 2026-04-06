@@ -52,7 +52,6 @@ Attribute VB_Exposed = False
 ' Cliquez sur le bouton OK pour valider.
 
 Option Explicit
-Option Compare Text
 
 '-----------------------------------------------------------------------------------------------------------------------------------------------------------
 '
@@ -96,28 +95,30 @@ Option Compare Text
 '   FichierExiste                      : Vérifier si le fichier dont le nom est "NomFichier" existe
 '   RepertoireExiste                   : Vérifier si le répertoire dont le nom est "NomRépertoire" existe
 '   LongueurFichier                    : Retourner la longueur d'un fichier en octets
+'   Extension                          : Retourner l'extension du fichier (en minuscules)
 '
 '-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Public Enum EnumNonDefini
+    NON_DEFINI = 0
+End Enum
+
 ' Proprieté "TypeFichier" : type de format du fichier
 Public Enum EnumTypeFichier
-    FICHIER_NON_DEFINI = 0
-    FICHIER_BINAIRE = 1    ' Fichier Binaire
-    FICHIER_TEXTE = 2      ' Fichier Texte
+    BINAIRE = 1    ' Fichier Binaire
+    TEXTE = 2      ' Fichier Texte
 End Enum
 
 ' Propriété "SeparateurLigne" : caractère(s) de fin d'enregistrement
 Public Enum EnumSeparateurLigne
-    SEPARATEUR_NON_DEFINI = 0
-    SEPARATEUR_CRLF = -1        ' Par défaut, Retour Chariot et Ligne Suivante
-    SEPARATEUR_LF = 10          ' Ligne Suivante
-    SEPARATEUR_CR = 13          ' Retour Chariot
+    CR_LF = -1       ' Par défaut, Retour Chariot et Ligne Suivante
+    LF = 10          ' Ligne Suivante
+    CR = 13          ' Retour Chariot
 End Enum
 
 ' Propriété "encodage" : encodage du fichier
 ' La liste des encodages n'est pas exhaustive et doit être complétée si nécessaire. Les plus utilisés sont présents.
-Public Enum EnumListeEncodage
-    NON_DEFINI = 0
+Public Enum EnumEncodage
     ASCII = 1
     LATIN_2 = 2
     LATIN_4 = 3
@@ -127,34 +128,34 @@ Public Enum EnumListeEncodage
     COREEN = 7
     UTF_7 = 8
     UTF_8 = 9
-    CP1250 = 10
-    CP1251 = 11
-    X_ANSI = 12
-    ISO_8859_11 = 13
-    ARABE = 14
-    AUTRE = 15
+    UTF_8_BOM = 10
+    CP1250 = 11
+    CP1251 = 12
+    X_ANSI = 13
+    ISO_8859_11 = 14
+    ARABE = 15
+    AUTRE = 16
 End Enum
 
 ' Propriété "TypeAcces"
 Public Enum EnumTypeAcces
-    ACCES_NON_DEFINI = 0
-    ACCES_LECTURE = 1           ' Ouverture en lecture du fichier
-    ACCES_ECRITURE = 2          ' Ouverture en écriture du fichier
+    LECTURE = 1           ' Ouverture en lecture du fichier
+    ECRITURE = 2          ' Ouverture en écriture du fichier
+    MODIFICATION = 3      ' Ouverture en lecture / écriture du fichier
 End Enum
 
 ' Filtres pour la boîte de dialogue "Enregistrer sous" (les plus utilisés)
 Public Enum EnumIndexFiltre
-    INDEX_FILTRE_NON_DEFINI = 0
-    INDEX_FILTRE_XLSX = 1            ' Classeur Excel
-    INDEX_FILTRE_XLSM = 2            ' Classeur Excel prenant en charge les macros
-    INDEX_FILTRE_XLSB = 3            ' Classeur Excel binaire
-    INDEX_FILTRE_XLS = 4             ' Classeur Excel 97-2003
-    INDEX_FILTRE_CSV_COMA = 5        ' CSV UTF-8 (délimité par des virgules)
-    INDEX_FILTRE_XML = 6             ' Données XML
-    INDEX_FILTRE_XLTX = 9            ' Modèle Excel
-    INDEX_FILTRE_XLTM = 10           ' Modèle Excel prenant en charge les macros
-    INDEX_FILTRE_CSV_TAB = 12        ' CSV (séparateur : tabulation)
-    INDEX_FILTRE_CSV_SEMICOLON = 16  ' CSV (séparateur : point-virgule)
+    XLSX = 1            ' Classeur Excel
+    XLSM = 2            ' Classeur Excel prenant en charge les macros
+    XLSB = 3            ' Classeur Excel binaire
+    XLS = 4             ' Classeur Excel 97-2003
+    CSV_COMA = 5        ' CSV UTF-8 (délimité par des virgules)
+    XML = 6             ' Données XML
+    XLTX = 9            ' Modèle Excel
+    XLTM = 10           ' Modèle Excel prenant en charge les macros
+    CSV_TAB = 12        ' CSV (séparateur : tabulation)
+    CSV_SEMICOLON = 16  ' CSV (séparateur : point-virgule)
 End Enum
 
 ' Propriété de la méthode "Lire"
@@ -164,10 +165,9 @@ Public Enum EnumMethodeLecture
 End Enum
 
 ' Statut du flux
-Private Enum EnumStatutFlux
-    STATUT_FICHIER_INITIAL = 0
-    STATUT_FICHIER_OUVERT = 1
-    STATUT_FICHIER_FERME = 2
+Private Enum EnumStatutFichier
+    FICHIER_OUVERT = 1
+    FICHIER_FERME = 2
 End Enum
 
 ' *---------------------------------------------------------------------------------------------------*
@@ -175,205 +175,205 @@ End Enum
 ' *---------------------------------------------------------------------------------------------------*
 
 ' Encodage du fichier texte
-Private psEncodage As String
-Private plEncodage As EnumListeEncodage
+Private pEncodage As String
+Private pEncodageNum As EnumEncodage
 Private DicEncodage As Dictionary
 ' Séparateur de lignes (fichier texte uniquement)
-Private plSeparateurLigne As EnumSeparateurLigne
+Private pSeparateurLigne As EnumSeparateurLigne
 ' Type de fichier : Texte ou Binaire
-Private plTypeFichier As EnumTypeFichier
+Private pTypeFichier As EnumTypeFichier
 ' Nom physique du fichier (le répertoire peut être inclus dans le nom)
-Private psNomFichier As String
+Private pNomFichier As String
 ' Objet ADODB.stream
-Private poFichier As Object
+Private pFichierADODB As Object
 ' Type d'accès au fichier : lecture, écriture
-Private psTypeAcces As EnumTypeAcces
+Private pTypeAcces As EnumTypeAcces
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Gestion des boîtes de dialogue                                                                    *
 ' *---------------------------------------------------------------------------------------------------*
 
 ' Titre de la boite de dialogue (fichiers)
-Private psTitreBoiteDialogue As String
+Private pTitreBoiteDialogue As String
 ' Libellé du filtre sur les fichiers à appliquer
-Private psLibelleFiltre As String
+Private pLibelleFiltre As String
 ' Extensions appliquées dans le filtre
-Private psExtensionFiltre As String
+Private pExtensionFiltre As String
 ' Nom du fichier initial proposé dans la boite de dialogue Enregistrer sous
-Private psNomInitialFichier As String
+Private pNomInitialFichier As String
 ' Répertoire sélectionné via la boite de dialogue
-Private psRepertoire As String
+Private pRepertoire As String
 ' Filtre pour la boîte à dialogue d'enregsitrement sous
-Private plIndexFiltre As EnumIndexFiltre
+Private pIndexFiltre As EnumIndexFiltre
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Gestion des fichiers                                                                              *
 ' *---------------------------------------------------------------------------------------------------*
 
 ' Fichier ouvert
-Private plStatutFlux As EnumStatutFlux
-Private plNbreEnregLus As Long
-Private plNbreEnregEcrits As Long
-Private plNbreOctectsLus As Long
-Private plNbreOctectsEcrits As Long
+Private pStatutFichier As EnumStatutFichier
+Private pNbreEnregLus As Long
+Private pNbreEnregEcrits As Long
+Private pNbreOctectsLus As Long
+Private pNbreOctectsEcrits As Long
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : objet fichier                                                                         *
 ' *---------------------------------------------------------------------------------------------------*
-Property Set Fichier(oFichier As Object)
-    Set poFichier = oFichier
+Property Set Fichier(FichierAdodb As Object)
+    Set pFichierADODB = FichierAdodb
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : type de fichier (texte, binaire)                                                      *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let TypeFichier(lTypeFichier As EnumTypeFichier)
+Property Let TypeFichier(TypeFichier As EnumTypeFichier)
 
     ' Vérifier le type de fichier
-    Select Case lTypeFichier
-        Case FICHIER_BINAIRE
+    Select Case TypeFichier
+        Case BINAIRE
             Select Case True
-                Case psEncodage <> ""
+                Case pEncodage <> ""
                     ' L'encodage n'est pas nécessaire pour lire un fichier binaire
                     Err.Raise vbObjectError + 1000, , "[TypeFichier] L'encodage ne doit pas être défini pour les fichiers binaires."
-                Case plSeparateurLigne <> SEPARATEUR_NON_DEFINI
+                Case pSeparateurLigne <> NON_DEFINI
                     ' Le séparateur de lignes n'est pas nécessaire pour lire un fichier binaire
                     Err.Raise vbObjectError + 1000, , "[TypeFichier] Le séparateur de lignes ne doit pas être défini pour les fichiers binaires."
                 Case Else
-                    plTypeFichier = lTypeFichier
+                    pTypeFichier = TypeFichier
             End Select
-        Case FICHIER_TEXTE
-            plTypeFichier = lTypeFichier
+        Case TEXTE
+            pTypeFichier = TypeFichier
         Case Else
-            Err.Raise vbObjectError + 1000, , "[TypeFichier] Le type de fichier " & lTypeFichier & " est invalide."
+            Err.Raise vbObjectError + 1000, , "[TypeFichier] Le type de fichier " & TypeFichier & " est invalide."
     End Select
 
 End Property
 
 Property Get TypeFichier() As EnumTypeFichier
-    TypeFichier = plTypeFichier
+    TypeFichier = pTypeFichier
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : Encodage du fichier texte (Enum)                                                      *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let Encodage(lEncodage As EnumListeEncodage)
+Property Let Encodage(EncodageNum As EnumEncodage)
 
     Select Case True
         ' L'encodage doit être renseigné
-        Case lEncodage = NON_DEFINI
+        Case EncodageNum = NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[Encodage] L'encodage n'est pas renseigné."
-        Case plTypeFichier = FICHIER_BINAIRE
+        Case pTypeFichier = BINAIRE
             ' L'encodage n'est pas nécessaire pour lire un fichier binaire
             Err.Raise vbObjectError + 1000, , "[Encodage] L'encodage ne doit pas être défini pour les fichiers binaires."
             ' Vérifie que l'encodage existe dans l'enum
-        Case EnumEncodageExiste(lEncodage) = True
-            plEncodage = lEncodage
-            psEncodage = DicEncodage.Keys(lEncodage)
+        Case DicEncodage.Exists(EncodageNum)
+            pEncodageNum = EncodageNum
+            pEncodage = DicEncodage(EncodageNum)
         Case Else
             ' Si l'encodage est absent de l'enum ListeEncodage et du dictionnaire dicEncodage alors une erreur est retournée.
             ' La liste des encodages n'est pas exhaustive et doit être complétée si nécessaire, sinon utiliser la propriété EncodageTxt.
-            Err.Raise vbObjectError + 2, , "[Encodage] L'encodage n'existe pas dans l'enum EnumListeEncodage."
+            Err.Raise vbObjectError + 2, , "[Encodage] L'encodage n'existe pas dans l'enum EnumEncodage."
     End Select
     
 End Property
 
-Property Get Encodage() As EnumListeEncodage
+Property Get Encodage() As EnumEncodage
     
-    Encodage = plEncodage
+    Encodage = pEncodageNum
     
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : Encodage du fichier texte (code technique)                                            *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let EncodageTxt(sEncodage As String)
+Property Let EncodageTxt(Encodage As String)
 
     Select Case True
         ' L'encodage doit être renseigné
-        Case Trim(sEncodage) = ""
+        Case Trim(Encodage) = ""
             Err.Raise vbObjectError + 3, , "[EncodageTxt] L'encodage n'est pas renseigné."
         ' L'encodage n'est pas nécessaire pour lire un fichier binaire
-        Case plTypeFichier = FICHIER_BINAIRE
+        Case pTypeFichier = BINAIRE
             Err.Raise vbObjectError + 1000, , "[EncodageTxt] L'encodage ne doit pas être défini pour les fichiers binaires."
         ' Aucun contrôle de l'encodage, la saisie est libre.
         Case Else
-            psEncodage = sEncodage
-            plEncodage = AUTRE
+            pEncodage = Encodage
+            pEncodageNum = AUTRE
     End Select
     
 End Property
 
 Property Get EncodageTxt() As String
-    EncodageTxt = psEncodage
+    EncodageTxt = pEncodage
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : séparateur de lignes (CL, LF, CR/LF)                                                  *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let SeparateurLigne(lSeparateurLigne As EnumSeparateurLigne)
+Property Let SeparateurLigne(SeparateurLigne As EnumSeparateurLigne)
 
-    If lSeparateurLigne = SEPARATEUR_CR Or lSeparateurLigne = SEPARATEUR_CRLF Or lSeparateurLigne = SEPARATEUR_LF Then
-        If plTypeFichier = FICHIER_BINAIRE Then
+    If SeparateurLigne = CR Or SeparateurLigne = CR_LF Or SeparateurLigne = LF Then
+        If pTypeFichier = BINAIRE Then
             ' Le séparateur ne sert à rien pour les fichiers binaires
             Err.Raise vbObjectError + 1000, , "[SeparateurLigne] Le séparateur ne doit pas être défini pour les fichiers binaires."
         Else
-            plSeparateurLigne = lSeparateurLigne
+            pSeparateurLigne = SeparateurLigne
         End If
     Else
-        Err.Raise vbObjectError + 1000, , "[SeparateurLigne] Le séparateur " & lSeparateurLigne & " est invalide."
+        Err.Raise vbObjectError + 1000, , "[SeparateurLigne] Le séparateur " & SeparateurLigne & " est invalide."
     End If
     
 End Property
 
 Property Get SeparateurLigne() As EnumSeparateurLigne
-    SeparateurLigne = plSeparateurLigne
+    SeparateurLigne = pSeparateurLigne
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : type d'accès au fichier                                                               *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let TypeAcces(sTypeAcces As EnumTypeAcces)
+Property Let TypeAcces(TypeAcces As EnumTypeAcces)
 
-    If sTypeAcces = ACCES_ECRITURE Or sTypeAcces = ACCES_LECTURE Then
-        psTypeAcces = sTypeAcces
+    If TypeAcces = ECRITURE Or TypeAcces = LECTURE Then
+        pTypeAcces = TypeAcces
     Else
-        Err.Raise vbObjectError + 1000, , "[TypeAcces] Le type d'accès " & sTypeAcces & " est invalide."
+        Err.Raise vbObjectError + 1000, , "[TypeAcces] Le type d'accès " & TypeAcces & " est invalide."
     End If
     
 End Property
 
 Property Get TypeAcces() As EnumTypeAcces
-    TypeAcces = psTypeAcces
+    TypeAcces = pTypeAcces
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : nom du fichier                                                                        *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let NomFichier(sNomFichier As String)
+Property Let NomFichier(NomFichier As String)
 
-    If Trim(sNomFichier) = "" Then
+    If Trim(NomFichier) = "" Then
         Err.Raise vbObjectError + 1000, , "[NomFichier] Le nom du fichier doit être renseigné."
     Else
         ' Convertir les noms de fichier sous forme d'URL au format Lecteur:\Répertoire\NomFichier.extension
-        psNomFichier = ConvertirUrlSharePoint(sNomFichier)
+        pNomFichier = ConvertirUrlSharePoint(NomFichier)
     End If
     
 End Property
 
 Property Get NomFichier() As String
-    NomFichier = psNomFichier
+    NomFichier = pNomFichier
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : titre de la boîte de dialogue à afficher                                              *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let TitreBoiteDeDialogue(sTitre As String)
+Property Let TitreBoiteDeDialogue(Titre As String)
 
-    If Trim(sTitre) = "" Then
+    If Trim(Titre) = "" Then
         Err.Raise vbObjectError + 1000, , "[TitreBoiteDeDialogue] Le titre de la boîte de dialogue doit être renseigné."
     Else
-        psTitreBoiteDialogue = sTitre
+        pTitreBoiteDialogue = Titre
     End If
     
 End Property
@@ -386,13 +386,13 @@ Property Let LibelleFiltre(sLibelleFiltre As String)
     If Trim(sLibelleFiltre) = "" Then
         Err.Raise vbObjectError + 1000, , "[LibelleFiltre] Le libellé du filtre doit être renseigné."
     Else
-        psLibelleFiltre = sLibelleFiltre
+        pLibelleFiltre = sLibelleFiltre
     End If
     
 End Property
 
 Property Get LibelleFiltre() As String
-    LibelleFiltre = psLibelleFiltre
+    LibelleFiltre = pLibelleFiltre
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
@@ -403,47 +403,47 @@ Property Let ExtensionFiltre(sExtensionFiltre As String)
     If Trim(sExtensionFiltre) = "" Then
         Err.Raise vbObjectError + 1000, , "[ExtensionFiltre] Les extensions doivent être renseignées."
     Else
-        psExtensionFiltre = sExtensionFiltre
+        pExtensionFiltre = sExtensionFiltre
     End If
     
 End Property
 
 Property Get ExtensionFiltre() As String
-    ExtensionFiltre = psExtensionFiltre
+    ExtensionFiltre = pExtensionFiltre
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : nom du fichier pré renseigné dans la boite de dialogue pour enregistrer sous          *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let NomInitialFichier(sNomInitialFichier As String)
+Property Let NomInitialFichier(NomInitialFichier As String)
 
-    If Trim(sNomInitialFichier) = "" Then
+    If Trim(NomInitialFichier) = "" Then
         Err.Raise vbObjectError + 1000, , "[NomInitialFichier] Le nom initial du fichier n'est pas renseigné."
     Else
-        psNomInitialFichier = sNomInitialFichier
+        pNomInitialFichier = NomInitialFichier
     End If
 
 End Property
 
 Property Get NomInitialFichier() As String
-    NomInitialFichier = psNomInitialFichier
+    NomInitialFichier = pNomInitialFichier
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Propriété : chemin d'un répertoire (dossier)                                                      *
 ' *---------------------------------------------------------------------------------------------------*
-Property Let Repertoire(sRepertoire As String)
+Property Let Repertoire(Repertoire As String)
     
-    If Trim(sRepertoire) = "" Then
+    If Trim(Repertoire) = "" Then
         Err.Raise vbObjectError + 1000, , "[Repertoire] Le répertoire n'est pas renseigné."
     End If
     
-    psRepertoire = sRepertoire
+    pRepertoire = Repertoire
     
 End Property
 
 Property Get Repertoire() As String
-    Repertoire = psRepertoire
+    Repertoire = pRepertoire
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
@@ -454,13 +454,13 @@ Property Let Filtre(lIndexFiltre As EnumIndexFiltre)
     If lIndexFiltre < 0 Or lIndexFiltre > 29 Then
         Err.Raise vbObjectError + 1000, , "[lIndexFiltre] Le filtre " & lIndexFiltre & " est invalide."
     Else
-        plIndexFiltre = lIndexFiltre
+        pIndexFiltre = lIndexFiltre
     End If
     
 End Property
 
 Property Get Filtre() As EnumIndexFiltre
-    Filtre = plIndexFiltre
+    Filtre = pIndexFiltre
 End Property
 
 ' *---------------------------------------------------------------------------------------------------*
@@ -477,43 +477,43 @@ Public Sub Ouvrir()
     
     Select Case True
         ' Vérifier le type de fichier
-        Case plTypeFichier = FICHIER_NON_DEFINI
+        Case pTypeFichier = NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[Ouvrir] Le type de fichier n'est pas défini."
         ' Vérifier que l'encodage est renseigné si le fichier est de type Texte
-        Case plTypeFichier = FICHIER_TEXTE And psEncodage = ""
+        Case pTypeFichier = TEXTE And pEncodage = ""
             Err.Raise vbObjectError + 1000, , "[Ouvrir] L'encodage n'est pas défini."
         ' Vérifier que le type d'accès est renseigné
-        Case psTypeAcces = ACCES_NON_DEFINI
+        Case pTypeAcces = NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[Ouvrir] Le type d'accès n'est pas défini."
-        Case psTypeAcces = ACCES_LECTURE
+        Case pTypeAcces = LECTURE
             ' Si le nom de fichier n'est pas renseigné
-            If Trim(psNomFichier) = "" Then
+            If Trim(pNomFichier) = "" Then
                 Err.Raise vbObjectError + 1000, , "[Ouvrir] Le nom du fichier n'est pas défini."
             End If
             ' Vérifier que le fichier existe si l'accès est en lecture
             If FichierExiste = False Then
-                Err.Raise vbObjectError + 1000, , "[Ouvrir] Le fichier " & psNomFichier & " n'existe pas."
+                Err.Raise vbObjectError + 1000, , "[Ouvrir] Le fichier " & pNomFichier & " n'existe pas."
             End If
     End Select
     
-    With poFichier
+    With pFichierADODB
         ' Type de fichier : binaire ou texte
-        .Type = plTypeFichier
+        .Type = pTypeFichier
         ' Si fichier texte, préciser l'encodage et le séparateur
-        If plTypeFichier = FICHIER_TEXTE Then
-            .Charset = psEncodage
-            If plSeparateurLigne <> SEPARATEUR_NON_DEFINI Then
-                .LineSeparator = plSeparateurLigne
+        If pTypeFichier = TEXTE Then
+            .Charset = pEncodage
+            If pSeparateurLigne <> NON_DEFINI Then
+                .LineSeparator = pSeparateurLigne
             End If
         End If
         .Open
         ' Si ouverture en lecture alors on charge le fichier
-        If psTypeAcces = ACCES_LECTURE Then
-            .LoadFromFile (psNomFichier)
+        If pTypeAcces = LECTURE Then
+            .LoadFromFile (pNomFichier)
         End If
     End With
     ' Fichier ouvert sans erreur
-    plStatutFlux = STATUT_FICHIER_OUVERT
+    pStatutFichier = FICHIER_OUVERT
     
 End Sub
 
@@ -527,18 +527,18 @@ Public Function Lire(lNbreCarALire As Long) As String
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT
+        Case pStatutFichier <> FICHIER_OUVERT
             Err.Raise vbObjectError + 1000, , "[Lire] Le fichier n'a pas été ouvert."
         ' Le nombre de caractères à lire doit être > 0
         Case lNbreCarALire <= 0
             Err.Raise vbObjectError + 1000, , "[Lire] Le nombre de caractères à lire n'est pas valide."
         ' Seule la lecture complète d'un fichier binaire est possible
-        Case plTypeFichier = FICHIER_BINAIRE
+        Case pTypeFichier = BINAIRE
             Err.Raise vbObjectError + 1000, , "[Lire] La lecture partielle d'un fichier binaire n'est pas possible."
         Case Else
             ' Lire les n caractères suivants
-            Lire = poFichier.ReadText(lNbreCarALire)
-            plNbreOctectsLus = plNbreOctectsLus + Len(Lire)
+            Lire = pFichierADODB.ReadText(lNbreCarALire)
+            pNbreOctectsLus = pNbreOctectsLus + Len(Lire)
     End Select
     
 End Function
@@ -553,18 +553,18 @@ Public Function LireEnregistrement() As String
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT
+        Case pStatutFichier <> FICHIER_OUVERT
             Err.Raise vbObjectError + 1000, , "[LireEnregistrement] Le fichier n'a pas été ouvert."
         ' Vérifie que le séparateur a bien été défini pour la lecture par ligne
-        Case plSeparateurLigne = SEPARATEUR_NON_DEFINI
+        Case pSeparateurLigne = NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[LireEnregistrement] Le séparateur de ligne n'est pas défini."
         ' Lecture du prochain enregistrement
-        Case plTypeFichier = FICHIER_TEXTE
-            LireEnregistrement = poFichier.ReadText(LIRE_ENREG_SUIVANT)
-            plNbreEnregLus = plNbreEnregLus + 1
-            plNbreOctectsLus = plNbreOctectsLus + Len(LireEnregistrement)
+        Case pTypeFichier = TEXTE
+            LireEnregistrement = pFichierADODB.ReadText(LIRE_ENREG_SUIVANT)
+            pNbreEnregLus = pNbreEnregLus + 1
+            pNbreOctectsLus = pNbreOctectsLus + Len(LireEnregistrement)
         ' Les fichiers binaires ne comportent pas de séparateur, par conséquent, il n'est pas possible de lire un enregistrement
-        Case plTypeFichier = FICHIER_BINAIRE
+        Case pTypeFichier = BINAIRE
             Err.Raise vbObjectError + 1000, , "[LireEnregistrement] La lecture d'un enregistrement d'un fichier binaire n'est pas possible."
     End Select
     
@@ -576,13 +576,22 @@ End Function
 Public Function FinFichier() As Boolean
     
     ' Accès impossible à un fichier non ouvert
-    If plStatutFlux <> STATUT_FICHIER_OUVERT Then
+    If pStatutFichier <> FICHIER_OUVERT Then
         Err.Raise vbObjectError + 1000, , "[FinFichier] Le fichier n'a pas été ouvert."
     End If
     
-    FinFichier = poFichier.EOS
+    FinFichier = pFichierADODB.EOS
 
 End Function
+
+' *---------------------------------------------------------------------------------------------------*
+' * Position dans le fichier                                                                          *
+' *---------------------------------------------------------------------------------------------------*
+Public Sub Position(Position As Long)
+
+    pFichierADODB.Position = Position
+    
+End Sub
 
 ' *---------------------------------------------------------------------------------------------------*
 ' * Lecture intégrale d'un fichier ADODB                                                              *
@@ -591,16 +600,16 @@ Public Function LireFichier() As Variant
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT
+        Case pStatutFichier <> FICHIER_OUVERT
             Err.Raise vbObjectError + 1000, , "[LireFichier] Le fichier n'a pas été ouvert."
         ' Lire entièrement un fichier binaire
-        Case plTypeFichier = FICHIER_BINAIRE
-            LireFichier = poFichier.Read(LIRE_FICHIER)
-            plNbreOctectsLus = plNbreOctectsLus + Len(LireFichier)
+        Case pTypeFichier = BINAIRE
+            LireFichier = pFichierADODB.Read(LIRE_FICHIER)
+            pNbreOctectsLus = pNbreOctectsLus + Len(LireFichier)
         ' Lire entièrement un fichier texte
-        Case plTypeFichier = FICHIER_TEXTE
-            LireFichier = poFichier.ReadText(LIRE_FICHIER)
-            plNbreOctectsLus = plNbreOctectsLus + Len(LireFichier)
+        Case pTypeFichier = TEXTE
+            LireFichier = pFichierADODB.ReadText(LIRE_FICHIER)
+            pNbreOctectsLus = pNbreOctectsLus + Len(LireFichier)
     End Select
 
 End Function
@@ -609,21 +618,21 @@ End Function
 ' * Ecrire un enregistrement dans un flux ADODB.stream                                                *
 ' *---------------------------------------------------------------------------------------------------*
 ' * Paramètres :                                                                                      *
-' *   -- sEnregistrement (Obligatoire) : enregistrement à écrire (XML, json, texte, etc)              *
+' *   -- Enregistrement (Obligatoire) : enregistrement à écrire (XML, json, texte, etc)               *
 ' *---------------------------------------------------------------------------------------------------*
-Public Sub EcrireEnregistrement(sEnregistrement As String)
+Public Sub EcrireEnregistrement(Enregistrement As String)
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT
+        Case pStatutFichier <> FICHIER_OUVERT
             Err.Raise vbObjectError + 26, , "[EcrireEnregistrement] Le fichier n'a pas été ouvert."
         ' Ecriture de l'enregistrement dans le fichier texte. Les séparateurs CR/LF doivent être présents dans l'enregistrement.
-        Case plTypeFichier = FICHIER_TEXTE
-            poFichier.WriteText sEnregistrement
-            plNbreEnregEcrits = plNbreEnregEcrits + 1
-            plNbreOctectsEcrits = plNbreOctectsEcrits + Len(sEnregistrement)
+        Case pTypeFichier = TEXTE
+            pFichierADODB.WriteText Enregistrement
+            pNbreEnregEcrits = pNbreEnregEcrits + 1
+            pNbreOctectsEcrits = pNbreOctectsEcrits + Len(Enregistrement)
         ' Il n'est pas possible d'écrire un enregistrement dans un fichier binaire.
-        Case plTypeFichier = FICHIER_BINAIRE
+        Case pTypeFichier = BINAIRE
             Err.Raise vbObjectError + 1000, , "[EcrireEnregistrement] L'écriture d'un enregistrement dans un fichier binaire n'est pas possible."
     End Select
     
@@ -633,20 +642,20 @@ End Sub
 ' * Ecrire des données dans un flux ADODB.stream                                                      *
 ' *---------------------------------------------------------------------------------------------------*
 ' * Paramètres :                                                                                      *
-' *   -- vDonnees (Obligatoire) : données à écrire (image, pdf, etc)                                  *
+' *   -- Donnees (Obligatoire) : données à écrire (image, pdf, etc)                                   *
 ' *---------------------------------------------------------------------------------------------------*
-Public Sub Ecrire(vDonnees As Variant)
+Public Sub Ecrire(Donnees As Variant)
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT
+        Case pStatutFichier <> FICHIER_OUVERT
             Err.Raise vbObjectError + 26, , "[Ecrire] Le fichier n'a pas été ouvert."
         ' Ecrire le fichier binaire (en une seule fois)
-        Case plTypeFichier = FICHIER_BINAIRE
-            poFichier.Write vDonnees
-            plNbreOctectsEcrits = plNbreOctectsEcrits + Len(vDonnees)
+        Case pTypeFichier = BINAIRE
+            pFichierADODB.Write Donnees
+            pNbreOctectsEcrits = pNbreOctectsEcrits + Len(Donnees)
         ' Il n'est pas possible d'écrire des données brutes dans un fichier texte.
-        Case plTypeFichier = FICHIER_TEXTE
+        Case pTypeFichier = TEXTE
             Err.Raise vbObjectError + 1000, , "[Ecrire] L'écriture de données binaires dans fichier texte n'est pas possible."
     End Select
     
@@ -662,15 +671,38 @@ End Sub
 Public Sub EnregistrerSous()
 
     Select Case True
-        Case plStatutFlux <> STATUT_FICHIER_OUVERT
+        Case pStatutFichier <> FICHIER_OUVERT
             ' Accès impossible à un fichier non ouvert
             Err.Raise vbObjectError + 26, , "[EnregistrerSous] Le fichier n'a pas été ouvert."
-        Case Trim(psNomFichier) = ""
+        Case Trim(pNomFichier) = ""
             Err.Raise vbObjectError + 1000, , "[EnregistrerSous] Le nom du fichier n'est pas défini."
-        Case plTypeFichier = FICHIER_NON_DEFINI
+        Case pTypeFichier = NON_DEFINI
             Err.Raise vbObjectError + 1000, , "[EnregistrerSous] Le type de fichier n'est pas défini."
         Case Else
-            poFichier.SaveToFile psNomFichier, plTypeFichier
+            If pEncodageNum = UTF_8 Then
+                ' Création d'un flux pour le fichier UTF_8 sans BOM
+                Dim oFichierUtf8 As Object
+                Set oFichierUtf8 = CreateObject("ADODB.STREAM")
+                With oFichierUtf8
+                    .Mode = MODIFICATION
+                    .Type = BINAIRE
+                    .Open
+                End With
+                With pFichierADODB
+                    ' Ignorer les caractères du BOM
+                    .Position = 3
+                    ' Copier le contenu du flux dans le nouveau flux
+                    .CopyTO oFichierUtf8
+                    .Flush
+                End With
+                With oFichierUtf8
+                    .SaveToFile pNomFichier
+                    .Close
+                End With
+                Set oFichierUtf8 = Nothing
+            Else
+                pFichierADODB.SaveToFile pNomFichier, pTypeFichier
+            End If
     End Select
     
 End Sub
@@ -680,12 +712,12 @@ End Sub
 ' *---------------------------------------------------------------------------------------------------*
 Public Sub Fermer()
     
-    If plStatutFlux <> STATUT_FICHIER_OUVERT Then
+    If pStatutFichier <> FICHIER_OUVERT Then
         ' Accès impossible à un fichier non ouvert
         Err.Raise vbObjectError + 26, , "[Fermer] Le fichier n'a pas été ouvert."
     Else
-        poFichier.Close
-        plStatutFlux = STATUT_FICHIER_FERME
+        pFichierADODB.Close
+        pStatutFichier = FICHIER_FERME
     End If
     
 End Sub
@@ -695,19 +727,19 @@ End Sub
 ' *---------------------------------------------------------------------------------------------------*
 
 Public Function NbreEnregLus() As Long
-    NbreEnregLus = plNbreEnregLus
+    NbreEnregLus = pNbreEnregLus
 End Function
 
 Public Function NbreEnregEcrits() As Long
-    NbreEnregEcrits = plNbreEnregEcrits
+    NbreEnregEcrits = pNbreEnregEcrits
 End Function
 
 Public Function NbreOctectsLus() As Long
-    NbreOctectsLus = plNbreOctectsLus
+    NbreOctectsLus = pNbreOctectsLus
 End Function
 
 Public Function NbreOctectsEcrits() As Long
-    NbreOctectsEcrits = plNbreOctectsEcrits
+    NbreOctectsEcrits = pNbreOctectsEcrits
 End Function
 
 ' *---------------------------------------------------------------------------------------------------*
@@ -721,23 +753,23 @@ Public Sub SelectionnerFichierEnregistrerSous()
 
     With Application.FileDialog(msoFileDialogSaveAs)
         .AllowMultiSelect = False
-        If psNomInitialFichier <> "" Then
-            .InitialFileName = psNomInitialFichier
+        If pNomInitialFichier <> "" Then
+            .InitialFileName = pNomInitialFichier
         End If
         .InitialView = msoFileDialogViewDetails
-        If plIndexFiltre <> INDEX_FILTRE_NON_DEFINI Then
-            .FilterIndex = plIndexFiltre
+        If pIndexFiltre <> NON_DEFINI Then
+            .FilterIndex = pIndexFiltre
         End If
         ' Titre par défaut de la boîte de dialogue
-        If psTitreBoiteDialogue = "" Then
+        If pTitreBoiteDialogue = "" Then
             .Title = "Sélectionner le répertoire et saisir le nom du fichier à enregistrer sous"
         Else
-            .Title = psTitreBoiteDialogue
+            .Title = pTitreBoiteDialogue
         End If
         If .Show = -1 Then
-            psNomFichier = .SelectedItems(1)
+            pNomFichier = .SelectedItems(1)
         Else
-            psNomFichier = ""
+            pNomFichier = ""
         End If
     End With
 
@@ -756,32 +788,32 @@ Public Sub SelectionnerFichier()
     ' Boite de dialogue de sélection d'un fichier
     With Application.FileDialog(msoFileDialogOpen)
         .AllowMultiSelect = False
-        If psNomInitialFichier <> "" Then
-            .InitialFileName = psNomInitialFichier
+        If pNomInitialFichier <> "" Then
+            .InitialFileName = pNomInitialFichier
         End If
         .InitialView = msoFileDialogViewDetails
         ' Si filtre ou extension non renseigné
-        If plIndexFiltre <> INDEX_FILTRE_NON_DEFINI Then
-            .FilterIndex = plIndexFiltre
+        If pIndexFiltre <> NON_DEFINI Then
+            .FilterIndex = pIndexFiltre
         Else
-            If psLibelleFiltre = "" Or psExtensionFiltre = "" Then
+            If pLibelleFiltre = "" Or pExtensionFiltre = "" Then
                 ' Tous les fichiers par défaut
                 .FilterIndex = 1
             Else
-                .Filters.Add psLibelleFiltre, psExtensionFiltre, 1
+                .Filters.Add pLibelleFiltre, pExtensionFiltre, 1
                 .FilterIndex = 0
             End If
         End If
         ' Titre par défaut si non renseigné
-        If psTitreBoiteDialogue = "" Then
+        If pTitreBoiteDialogue = "" Then
             .Title = "Sélectionner le répertoire et le fichier"
         Else
-            .Title = psTitreBoiteDialogue
+            .Title = pTitreBoiteDialogue
         End If
         If .Show = -1 Then
-            psNomFichier = .SelectedItems(1)
+            pNomFichier = .SelectedItems(1)
         Else
-            psNomFichier = ""
+            pNomFichier = ""
         End If
     End With
     
@@ -798,20 +830,20 @@ Public Sub SelectionnerRepertoire()
     ' Boite de dialogue de sélection du répertoire
     With Application.FileDialog(msoFileDialogFolderPicker)
         .AllowMultiSelect = False
-        If psNomInitialFichier <> "" Then
-            .InitialFileName = psNomInitialFichier
+        If pNomInitialFichier <> "" Then
+            .InitialFileName = pNomInitialFichier
         End If
         .InitialView = msoFileDialogViewDetails
-        If psTitreBoiteDialogue = "" Then
+        If pTitreBoiteDialogue = "" Then
             .Title = "Sélectionner le répertoire"
         Else
-            .Title = psTitreBoiteDialogue
+            .Title = pTitreBoiteDialogue
         End If
         ' Si aucun répertoire sélectionné alors fin du traitement
         If .Show = -1 Then
-            psRepertoire = .SelectedItems(1)
+            pRepertoire = .SelectedItems(1)
         Else
-            psRepertoire = ""
+            pRepertoire = ""
         End If
     End With
 
@@ -823,17 +855,20 @@ End Sub
 ' * Propriété utilisée :                                                                              *
 ' *   -- NomFichier          (Obligatoire)                                                            *
 ' *---------------------------------------------------------------------------------------------------*
-Public Function EstFichierVolumineux(Optional sNomFichier As String) As Boolean
+Public Function EstFichierVolumineux(Optional NomFichier As String) As Boolean
     
-    Dim sNomFichierLocal As String
+    Dim NomFichierLocal As String
     
     Select Case True
-        Case Trim(sNomFichier) <> "": sNomFichierLocal = sNomFichier
-        Case psNomFichier <> "": sNomFichierLocal = psNomFichier
-        Case Else: Err.Raise vbObjectError + 1000, , "EstFichierVolumineux : Le nom du fichier n'est pas défini."
+        Case Trim(NomFichier) <> ""
+            NomFichierLocal = NomFichier
+        Case pNomFichier <> ""
+            NomFichierLocal = pNomFichier
+        Case Else
+            Err.Raise vbObjectError + 1000, , "EstFichierVolumineux : Le nom du fichier n'est pas défini."
     End Select
     
-    If LongueurFichier(sNomFichierLocal) > 4400000000# Then
+    If LongueurFichier(NomFichierLocal) > 4400000000# Then
         EstFichierVolumineux = True
     Else
         EstFichierVolumineux = False
@@ -845,23 +880,26 @@ End Function
 ' * Retourne la longueur d'un fichier (en octets)                                                     *
 ' *---------------------------------------------------------------------------------------------------*
 ' * Paramètre utilisé :                                                                               *
-' *   -- sNomFichier         (Facultatif)                                                             *
+' *   -- NomFichier         (Facultatif)                                                              *
 ' * Propriété utilisée :                                                                              *
 ' *   -- NomFichier          (Facultatif)                                                             *
 ' *---------------------------------------------------------------------------------------------------*
-Public Function LongueurFichier(Optional sNomFichier As String) As Double
+Public Function LongueurFichier(Optional NomFichier As String) As Double
 
-    Dim sNomFichierLocal As String
+    Dim NomFichierLocal As String
     Dim oFileSystem As Object, oFichier As Object
     
     Select Case True
-        Case Trim(sNomFichier) <> "": sNomFichierLocal = sNomFichier
-        Case psNomFichier <> "": sNomFichierLocal = psNomFichier
-        Case Else: Err.Raise vbObjectError + 1000, , "LongueurFichier : Le nom du fichier n'est pas défini."
+        Case Trim(NomFichier) <> ""
+            NomFichierLocal = NomFichier
+        Case pNomFichier <> ""
+            NomFichierLocal = pNomFichier
+        Case Else
+            Err.Raise vbObjectError + 1000, , "LongueurFichier : Le nom du fichier n'est pas défini."
     End Select
 
     Set oFileSystem = CreateObject("Scripting.FileSystemObject")
-    Set oFichier = oFileSystem.GetFile(sNomFichierLocal)
+    Set oFichier = oFileSystem.GetFile(NomFichierLocal)
     LongueurFichier = oFichier.Size
 
 End Function
@@ -870,21 +908,24 @@ End Function
 ' * Vérifie si un fichier existe                                                                      *
 ' *---------------------------------------------------------------------------------------------------*
 ' * Paramètre utilisé :                                                                               *
-' *   -- sNomFichier         (Facultatif)                                                             *
+' *   -- NomFichier         (Facultatif)                                                              *
 ' * Propriété utilisée :                                                                              *
 ' *   -- NomFichier          (Facultatif)                                                             *
 ' *---------------------------------------------------------------------------------------------------*
-Public Function FichierExiste(Optional sNomFichier As String) As Boolean
+Public Function FichierExiste(Optional NomFichier As String) As Boolean
     
-    Dim sNomFichierLocal As String
+    Dim NomFichierLocal As String
     
     Select Case True
-        Case Trim(sNomFichier) <> "": sNomFichierLocal = sNomFichier
-        Case psNomFichier <> "": sNomFichierLocal = psNomFichier
-        Case Else: Err.Raise vbObjectError + 1000, , "FichierExiste : le nom du fichier n'est pas défini."
+        Case Trim(NomFichier) <> ""
+            NomFichierLocal = NomFichier
+        Case pNomFichier <> ""
+            NomFichierLocal = pNomFichier
+        Case Else
+            Err.Raise vbObjectError + 1000, , "FichierExiste : le nom du fichier n'est pas défini."
     End Select
 
-    FichierExiste = Dir(sNomFichierLocal, vbNormal) <> ""
+    FichierExiste = Dir(NomFichierLocal, vbNormal) <> ""
 
 End Function
 
@@ -894,72 +935,74 @@ End Function
 ' * Propriété utilisée :                                                                              *
 ' *   -- Repertoire          (Obligatoire)                                                            *
 ' *---------------------------------------------------------------------------------------------------*
-Public Function RepertoireExiste(Optional sRepertoire As String) As Boolean
+Public Function RepertoireExiste(Optional Repertoire As String) As Boolean
     
-    Dim sNomRepertoire As String
+    Dim NomRepertoire As String
     
     Select Case True
-        Case Trim(sRepertoire) <> "": sNomRepertoire = sRepertoire
-        Case psRepertoire <> "": sNomRepertoire = psRepertoire
-        Case Else: Err.Raise vbObjectError + 1000, , "RepertoireExiste : le nom du répertoire n'est pas défini."
+        Case Trim(Repertoire) <> ""
+            NomRepertoire = Repertoire
+        Case pRepertoire <> ""
+            NomRepertoire = pRepertoire
+        Case Else
+            Err.Raise vbObjectError + 1000, , "RepertoireExiste : le nom du répertoire n'est pas défini."
     End Select
 
-    RepertoireExiste = Dir(sNomRepertoire, vbDirectory) <> ""
+    RepertoireExiste = Dir(NomRepertoire, vbDirectory) <> ""
 
-End Function
-
-' *---------------------------------------------------------------------------------------------------*
-' * Vérifie si l'encodage existe dans le dictionnaire                                                 *
-' *---------------------------------------------------------------------------------------------------*
-Private Function EnumEncodageExiste(lEncodage As Long) As Boolean
-
-    Dim iIcDico As Integer
-    
-    For iIcDico = 0 To DicEncodage.Count
-        If DicEncodage.Items(iIcDico) = lEncodage Then
-            EnumEncodageExiste = True
-            Exit For
-        End If
-    Next iIcDico
-    
 End Function
 
 ' *--------------------------------------------------------------------------------------------------------------------------*
 ' * Convertir un nom de chemin défini par une URL OneDrive ou SharePoint vers un nom de chemin Windows                       *
 ' * Exemple : https://xxx-my.sharepoint.com/personal/ devient c:\Users\xxxx\OneDrive - xxx                                   *
 ' *--------------------------------------------------------------------------------------------------------------------------*
-Private Function ConvertirUrlSharePoint(sChemin As String) As String
+Private Function ConvertirUrlSharePoint(Chemin As String) As String
 
-    Dim sListeDossiers() As String, iNbDossiers As Integer, lPosDoc As Long, sRepertoire As String
+    Dim sListeDossiers() As String, iNbDossiers As Integer, lPosDoc As Long, Repertoire As String
     
     ' Si le chemin du fichier commence par http
-    If LCase$(Left(sChemin, 4)) = "http" Then
+    If LCase$(Left(Chemin, 4)) = "http" Then
         Select Case True
         ' Espace personnel sur SharePoint (i.e. OneDrive Commercial) ?
-        Case sChemin Like "https://*-my.sharepoint.com/personal/*":
+        Case Chemin Like "https://*-my.sharepoint.com/personal/*"
             ' Recherche la chaîne "/Documents/documents" afin d'obtenir le début de l'arborescence dans le dossier des documents
-            lPosDoc = InStr(1, sChemin, "/Documents/Documents/", vbTextCompare) + Len("/Documents")
+            lPosDoc = InStr(1, Chemin, "/Documents/Documents/", vbTextCompare) + Len("/Documents")
             ' Le répertoire local est récupéré à partir du 2ème /Documents
-            sRepertoire = Mid(sChemin, lPosDoc, Len(sChemin) - lPosDoc + 1)
-            ConvertirUrlSharePoint = Environ("OneDriveCommercial") & Replace(sRepertoire, "/", "\")
+            Repertoire = Mid(Chemin, lPosDoc, Len(Chemin) - lPosDoc + 1)
+            ConvertirUrlSharePoint = Environ("OneDriveCommercial") & Replace(Repertoire, "/", "\")
         ' Espace de travail partagé
-        Case sChemin Like "https://weshare*":
-            sListeDossiers = Split(sChemin, "/")
+        Case Chemin Like "https://weshare*"
+            sListeDossiers = Split(Chemin, "/")
             ConvertirUrlSharePoint = "\\" & sListeDossiers(2) & "@SSL\DavWWWRoot"
             For iNbDossiers = 3 To UBound(sListeDossiers)
                 ConvertirUrlSharePoint = ConvertirUrlSharePoint & "\" & sListeDossiers(iNbDossiers)
             Next
-        Case sChemin Like "https://d.docs.live.net/*":
+        Case Chemin Like "https://d.docs.live.net/*"
             ' Recherche la chaîne "/documents" afin d'obtenir le début de l'arborescence dans le dossier des documents
-            lPosDoc = InStr(1, sChemin, "/Documents/", vbTextCompare)
+            lPosDoc = InStr(1, Chemin, "/Documents/", vbTextCompare)
             ' Le répertoire local est récupéré à partir du 2ème /Documents
-            sRepertoire = Mid(sChemin, lPosDoc, Len(sChemin) - lPosDoc + 1)
-            ConvertirUrlSharePoint = Environ("OneDrive") & Replace(sRepertoire, "/", "\")
+            Repertoire = Mid(Chemin, lPosDoc, Len(Chemin) - lPosDoc + 1)
+            ConvertirUrlSharePoint = Environ("OneDrive") & Replace(Repertoire, "/", "\")
         End Select
     Else
-        ConvertirUrlSharePoint = sChemin
+        ConvertirUrlSharePoint = Chemin
     End If
     
+End Function
+
+' *---------------------------------------------------------------------------------------------------*
+' * Retourne l'extension du fichier                                                                   *
+' *---------------------------------------------------------------------------------------------------*
+Public Function Extension() As String
+    
+    Dim lPosPt As Long
+    
+    lPosPt = InStrRev(pNomFichier, ".")
+    If lPosPt > 0 Then
+        Extension = LCase$(Right$(pNomFichier, Len(pNomFichier) - lPosPt))
+    Else
+        Extension = ""
+    End If
 End Function
 
 ' *---------------------------------------------------------------------------------------------------*
@@ -968,36 +1011,37 @@ End Function
 Private Sub Class_Initialize()
     
     ' Création d'un objet ADODB
-    Set poFichier = CreateObject("ADODB.STREAM")
+    Set pFichierADODB = CreateObject("ADODB.STREAM")
 
     ' Création d'un dictionnaire des encodages
     Set DicEncodage = New Dictionary
     ' Ajout des encodages (à compléter si nécessaire)
     ' clé : libellé de l'encodage identique aux clés de registre charset de windows
-    ' La liste ci-dessous doit être identique à l'enum EnumListeEncodage
-    DicEncodage.Add "Non défini", NON_DEFINI
-    DicEncodage.Add "iso-8859-1", ASCII
-    DicEncodage.Add "iso-8859-2", LATIN_2
-    DicEncodage.Add "iso-8859-4", LATIN_4
-    DicEncodage.Add "iso-8859-5", CYRILLIQUE
-    DicEncodage.Add "iso-8859-7", GREC
-    DicEncodage.Add "iso-8859-9", LATIN_5
-    DicEncodage.Add "ks_c_5601-1987", COREEN
-    DicEncodage.Add "utf-7", UTF_7
-    DicEncodage.Add "utf-8", UTF_8
-    DicEncodage.Add "Windows-1250", CP1250
-    DicEncodage.Add "Windows-1251", CP1251
-    DicEncodage.Add "windows-1252", X_ANSI
-    DicEncodage.Add "windows-874", ISO_8859_11
-    DicEncodage.Add "iso-8859-6", ARABE
-    DicEncodage.Add "Autre", AUTRE
+    ' La liste ci-dessous doit être identique à l'enum EnumEncodage
+    DicEncodage.Add NON_DEFINI, "Non défini"
+    DicEncodage.Add ASCII, "iso-8859-1"
+    DicEncodage.Add LATIN_2, "iso-8859-2"
+    DicEncodage.Add LATIN_4, "iso-8859-4"
+    DicEncodage.Add CYRILLIQUE, "iso-8859-5"
+    DicEncodage.Add GREC, "iso-8859-7"
+    DicEncodage.Add LATIN_5, "iso-8859-9"
+    DicEncodage.Add COREEN, "ks_c_5601-1987"
+    DicEncodage.Add UTF_7, "utf-7"
+    DicEncodage.Add UTF_8, "utf-8"
+    DicEncodage.Add UTF_8_BOM, "utf-8"
+    DicEncodage.Add CP1250, "Windows-1250"
+    DicEncodage.Add CP1251, "Windows-1251"
+    DicEncodage.Add X_ANSI, "windows-1252"
+    DicEncodage.Add ISO_8859_11, "windows-874"
+    DicEncodage.Add ARABE, "iso-8859-6"
+    DicEncodage.Add AUTRE, "Autre"
     
     ' Fichier pas encore ouvert
-    plStatutFlux = STATUT_FICHIER_INITIAL
-    plNbreEnregLus = 0
-    plNbreEnregEcrits = 0
-    plNbreOctectsLus = 0
-    plNbreOctectsEcrits = 0
+    pStatutFichier = NON_DEFINI
+    pNbreEnregLus = 0
+    pNbreEnregEcrits = 0
+    pNbreOctectsLus = 0
+    pNbreOctectsEcrits = 0
     
 End Sub
 
@@ -1005,6 +1049,6 @@ End Sub
 ' * Terminaison de la classe : libérer la mémoire en détruisant les objets                            *
 ' *---------------------------------------------------------------------------------------------------*
 Private Sub Class_Terminate()
-    Set poFichier = Nothing
+    Set pFichierADODB = Nothing
     Set DicEncodage = Nothing
 End Sub
