@@ -14,9 +14,9 @@ Public Sub EcrireLireFichiers()
     
     ' Ouverture du fichier CSV en écriture
     With oFichier
-        .TypeFichier = FICHIER_TEXTE
-        .TypeAcces = ACCES_ECRITURE
-        .Encodage = UTF_8
+        .TypeFichier = AD_TYPE_TEXT
+        .TypeAcces = AD_MODE_WRITE
+        .Encodage = AD_UTF_8
         .Ouvrir
         ' Ecriture dans le flux ADODB de l'entête du fichier texte
         sEnreg = "Marque;Modele;Categorie;Carburant;Puissance" & vbCrLf
@@ -45,10 +45,10 @@ Public Sub EcrireLireFichiers()
     
     ' Ouverture du fichier en lecture
     With oFichier
-        .TypeFichier = FICHIER_TEXTE
-        .TypeAcces = ACCES_LECTURE
-        .Encodage = UTF_8
-        .SeparateurLigne = SEPARATEUR_CRLF
+        .TypeFichier = AD_TYPE_TEXT
+        .TypeAcces = AD_MODE_READ
+        .Encodage = AD_UTF_8
+        .SeparateurLigne = AD_CR_LF
         .NomFichier = sNomFichier
         .Ouvrir
     End With
