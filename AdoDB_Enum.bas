@@ -7,7 +7,7 @@ Attribute VB_Name = "AdoDB_Enum"
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 '' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 '
-' Copyright (c) 2024, Vincent ROSSET
+' Copyright (c) 2026, Vincent ROSSET
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -33,15 +33,22 @@ Attribute VB_Name = "AdoDB_Enum"
 ' SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-' Propriété "SeparateurLigne" : caractère(s) de fin d'enregistrement
+'-------------------------------------------------------------------------------------------------------------------------
+' AdoDB_Enum : Enum pour gérer des flux ADODB
+'-------------------------------------------------------------------------------------------------------------------------
+
+'-------------------------------------------------------------------------------------------------------------------------
+' Enum du séparateur de lignes
+'-------------------------------------------------------------------------------------------------------------------------
 Public Enum LineSeparatorsEnum
-    AD_CR_LF = -1          ' Par défaut, Retour Chariot et Ligne Suivante
-    AD_LF = 10             ' Ligne Suivante
-    AD_CR = 13             ' Retour Chariot
+    AD_CR_LF = -1          ' Par défaut, Retour Chariot et Ligne Suivante (adCrLf)
+    AD_LF = 10             ' Ligne Suivante (adLf)
+    AD_CR = 13             ' Retour Chariot (adCr)
 End Enum
 
-' Propriété "encodage" : encodage du fichier
-' La liste des encodages n'est pas exhaustive et doit être complétée si nécessaire. Les plus utilisés sont présents.
+'-------------------------------------------------------------------------------------------------------------------------
+' Enum des encodages utilisés pour les fichiers
+'-------------------------------------------------------------------------------------------------------------------------
 Public Enum CharsetEnum
     AD_ASCII = 1
     AD_LATIN_2 = 2
@@ -53,28 +60,34 @@ Public Enum CharsetEnum
     AD_UTF_7 = 8
     AD_UTF_8 = 9
     AD_UTF_8_BOM = 10
-    AD_CP1250 = 11
-    AD_CP1251 = 12
-    AD_X_ANSI = 13
+    AD_CP_1250 = 11
+    AD_CP_1251 = 12
+    AD_CP_1252 = 13
     AD_ISO_8859_11 = 14
     AD_ARABE = 15
     AD_AUTRE = 16
 End Enum
 
-' Proprieté "TypeFichier" : type de format du fichier
+'-------------------------------------------------------------------------------------------------------------------------
+' Enum du type de fichier
+'-------------------------------------------------------------------------------------------------------------------------
 Public Enum StreamTypeEnum
-    AD_TYPE_BINARY = 1         ' Fichier Binaire
-    AD_TYPE_TEXT = 2           ' Fichier Texte
+    AD_TYPE_BINARY = 1         ' Fichier Binaire (adTypeBinary)
+    AD_TYPE_TEXT = 2           ' Fichier Texte (adTypetext)
 End Enum
 
-' Propriété "TypeAcces"
+'-------------------------------------------------------------------------------------------------------------------------
+' Enum du mode d'accès au fichier
+'-------------------------------------------------------------------------------------------------------------------------
 Public Enum ConnectModeEnum
-    AD_MODE_READ = 1         ' Ouverture en lecture du fichier
-    AD_MODE_WRITE = 2        ' Ouverture en écriture du fichier
-    AD_MODE_READ_WRITE = 3   ' Ouverture en lecture / écriture du fichier
+    AD_MODE_READ = 1         ' Ouverture en lecture du fichier (adModeRead)
+    AD_MODE_WRITE = 2        ' Ouverture en écriture du fichier (adModeWrite)
+    AD_MODE_READ_WRITE = 3   ' Ouverture en lecture / écriture du fichier (adModeReadWrite)
 End Enum
 
-' Filtres pour la boîte de dialogue "Enregistrer sous" (les plus utilisés)
+'-------------------------------------------------------------------------------------------------------------------------
+' Enum des filtres proposés lors de l'enregistrement sous dans Excel
+'-------------------------------------------------------------------------------------------------------------------------
 Public Enum FilterIndexEnum
     AD_XLSX = 1            ' Classeur Excel
     AD_XLSM = 2            ' Classeur Excel prenant en charge les macros
@@ -89,13 +102,18 @@ Public Enum FilterIndexEnum
     AD_CSV_SEMICOLON = 16  ' CSV (séparateur : point-virgule)
 End Enum
 
-' Propriété de la méthode "Lire"
+'-------------------------------------------------------------------------------------------------------------------------
+' Enum de la méthode de lecture d'un fichier
+'-------------------------------------------------------------------------------------------------------------------------
 Public Enum StreamReadEnum
-    AD_READ_ALL = -1       ' Lit l'intégralité du fichier. C’est la seule valeur valide s'il s'agit d'un fichier binaire.
-    AD_READ_LINE = -2      ' Lit l'enregistrement suivant (jusqu'au prochain séparateur de lignes ou la fin de fichier).
+    AD_READ_ALL = -1       ' Lit l'intégralité du fichier. C’est la seule valeur valide s'il s'agit d'un fichier binaire. (adReadAll)
+    AD_READ_LINE = -2      ' Lit l'enregistrement suivant (jusqu'au prochain séparateur de lignes ou la fin de fichier). (adReadLine)
 End Enum
 
+'-------------------------------------------------------------------------------------------------------------------------
+' Enum de l'enregistrement d'un fichier avec écrasement ou non
+'-------------------------------------------------------------------------------------------------------------------------
 Public Enum SaveOptionsEnum
-    AD_SAVE_CREATE_NOT_EXIST = 1
-    AD_SAVE_CREATE_OVER_WRITE = 2
+    AD_SAVE_CREATE_NOT_EXIST = 1   ' adSaveCreateNotExist
+    AD_SAVE_CREATE_OVER_WRITE = 2  ' adSaveCreateOverWrite
 End Enum
