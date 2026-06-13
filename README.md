@@ -23,7 +23,8 @@ Sélection de fichiers, enregistrement sous, choix de répertoire…
 Sans API Windows ni code complexe.
 
 ### ✔️ API unifiée
-Même logique pour le texte et le binaire.  
+Même logique pour le texte et le binaire.
+Chaque propriété est définie avec un Enum afin de disposer de tous les choix possibles en clair (sans devoir consulter la documentation technique).
 Plus besoin de jongler entre plusieurs syntaxes VBA.
 
 ### ✔️ Sécurité et robustesse
@@ -45,18 +46,17 @@ La classe est pensée pour être :
 
 ### 🔧 Configuration du fichier
 - TypeFichier : texte ou binaire  
-- Encodage / EncodageTxt  
-- SeparateurLigne  
+- Encodage / EncodageTxt : choix de l'encodage avec une Enum ou saisie libre 
+- SeparateurLigne : séparateur de lignes (CR, LC, CR/LF)
 
 ### 🔒 Gestion des accès
-- TypeAcces : lecture ou écriture  
-- NomFichier  
-- Fichier : accès direct à ADODB.Stream  
+- ModeAcces : lecture, modification ou écriture  
+- NomFichier : nom du fichier physique à traiter 
 
 ### 🖥️ Interface utilisateur
-- SelectionnerFichier  
-- SelectionnerFichierEnregistrerSous  
-- SelectionnerRepertoire  
+- SelectionnerFichier : sélectionner le nom d'un fichier à lire dans une boite de dialogue Excel 
+- SelectionnerFichierEnregistrerSous : saisir le nom d'un fichier à écrire dans une boite de dialogue Excel 
+- SelectionnerRepertoire : sélectionner un répertoire à traiter
 
 ### 📊 Suivi des opérations
 - NbreEnregLus / NbreEnregEcrits  
@@ -72,7 +72,7 @@ La classe est pensée pour être :
 
 ## 🚀 Exemples d’utilisation
 
-### Ecriture puis lecture d'un fichier texte
+### Ecriture d'un fichier texte
 
 ```vba
     ' Déclaration d'un objet ADODB
@@ -81,6 +81,8 @@ La classe est pensée pour être :
     Dim sEnreg As String, sNomFichier As String
     
     ' Créer un fichier texte
+    ' Ecriture dans le flux ADODB de l'entête du fichier texte
+    sEnreg = "Marque;Modele;Categorie;Carburant;Puissance" & vbCrLf
     
     ' Ouverture du fichier CSV en écriture
     With oFichier
@@ -88,13 +90,7 @@ La classe est pensée pour être :
         .TypeAcces = AD_MODE_WRITE
         .Encodage = AD_UTF_8
         .Ouvrir
-        ' Ecriture dans le flux ADODB de l'entête du fichier texte
-        sEnreg = "Marque;Modele;Categorie;Carburant;Puissance" & vbCrLf
-        .EcrireEnregistrement (sEnreg)
         ' Ecriture des donnees dans le flux ADODB
-        sEnreg = "Marque1;Modèle1;SUV;Essence;129 ch" & vbCrLf
-        .EcrireEnregistrement (sEnreg)
-        sEnreg = "Marque2;Modèle2;SUV;Essence;89 ch" & vbCrLf
         .EcrireEnregistrement (sEnreg)
         ' Sélectionner le nom du fichier
         .NomInitialFichier = Environ("OneDrive") & "\Documents\tests.txt"
@@ -102,16 +98,22 @@ La classe est pensée pour être :
         .TitreBoiteDeDialogue = "Enregistrer le fichier sous"
         .SelectionnerFichierEnregistrerSous
         ' Si le nom du fichier n'a pas été sélectionné alors on quitte
-        If .NomFichier = "" Then Exit Sub
-        ' Récupère le nom du fichier afin de pouvoir le lire dans l'étape suivante
-        sNomFichier = .NomFichier
-        ' Enregistrement du flux ADODB
-        .EnregistrerSous
-        ' Fermeture du flux
+        If .NomFichier <> "" Then 
+            ' Enregistrement du flux ADODB
+            .EnregistrerSous
+            ' Fermeture du flux
+        End if
         .Fermer
     End With
-    
-    ' Lire le fichier texte précédemment créé
+
+    ' Libérer les ressources
+    Set oFichier = Nothing
+
+```
+
+### Lecture d'un fichier texte
+
+```vba
     
     ' Ouverture du fichier en lecture
     With oFichier
