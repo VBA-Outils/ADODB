@@ -78,7 +78,7 @@ La classe est pensée pour être :
     ' Déclaration d'un objet ADODB
     Dim oFichier As New ADODB
     ' Enregistrement et nom du fichier
-    Dim sEnreg As String, sNomFichier As String
+    Dim sEnreg As String
     
     ' Créer un fichier texte
     ' Ecriture dans le flux ADODB de l'entête du fichier texte
@@ -102,7 +102,7 @@ La classe est pensée pour être :
             ' Enregistrement du flux ADODB
             .EnregistrerSous
             ' Fermeture du flux
-        End if
+        End If
         .Fermer
     End With
 
@@ -114,7 +114,9 @@ La classe est pensée pour être :
 ### Lecture d'un fichier texte
 
 ```vba
-    
+    ' Déclaration d'un objet ADODB
+    Dim oFichier As New ADODB
+
     ' Ouverture du fichier en lecture
     With oFichier
         .TypeFichier = AD_TYPE_TEXT
