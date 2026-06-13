@@ -1,70 +1,175 @@
-<h1>Licence</h1>
-<p>Ce projet est distribué sous licence MIT. Consultez le fichier LICENSE pour plus de détails.</p>
-<h1>Prérequis</h1>
-<p>Environnement de développement : Microsoft Visual Basic for Applications (VBA)</p>
-<h1>Automatisation des accès aux fichiers dans Excel</h1>
-<p>Découvrez notre projet VBA conçu pour simplifier et automatiser les accès aux fichiers dans Microsoft Excel. Une solution robuste pour les développeurs VBA expérimentés cherchant à optimiser leur gestion des fichiers.</p>
-<p>Notre classe encapsule des propriétés et des méthodes essentielles pour simplifier les opérations de traitement des fichiers. Elle offre une flexibilité pour définir les caractéristiques des fichiers et gérer les accès.</p>
-<p>Les méthodes intégrées effectuent des contrôles en amont des actions, assurant l'intégrité et la sécurité des opérations sur les fichiers. Cette approche minimise les erreurs.</p>
-<h2>Propriétés clés de la classe</h2>
-<h3>Configuration</h3>
-<ul>
-<li><strong>TypeFichier</strong> : type du fichier (texte ou binaire)</li>
-<li><strong>Encodage</strong> : encodage du fichier (enum)</li>
-<li><strong>EncodageTxt</strong> : encodage du fichier (saisie libre)</li>
-<li><strong>SeparateurLigne</strong> : séparateur de lignes d'un fichier texte</li>
-</ul>
-<h3>Gestion des accès</h3>
-<ul>
-<li><strong>TypeAcces</strong> : accès au fichier (lecture, écriture)</li>
-<li><strong>NomFichier</strong> : nom du fichier (y compris le chemin d'accès)</li>
-<li><strong>Fichier</strong>: permettre de pointer sur un objet ADODB Stream en dehors de la classe</li>
-</ul>
-<h3>Interface Utilisateur</h3>
-<ul>
-<li><strong>TitreboiteDeDialogue</strong> : titre affiché dans les boîtes de dialogue</li>
-<li><strong>LibelleFiltre</strong> : libellé du filtre utilise pour afficher les fichiers dans une boîte de dialogue</li>
-<li><strong>ExtensionFiltre</strong> : filtre des extensions de fichier utilise dans une boîte de dialogue</li>
-<li><strong>NomInitialFichier</strong> : nom initial du fichier affiché dans une boîte de dialogue lors d'un enregistrement sous</li>
-<li><strong>Filtre</strong> : filtre des extensions (parmi celles proposées par Excel) de fichier, utilisé dans une boîte de dialogue</li>
-</ul>
-<h3>Suivi des opérations</h3>
-<ul>
-<li><strong>NbreEnregLus</strong> : nombre d'enregistrements lus</li>
-<li><strong>NbreEnregEcrits</strong> : nombre d'enregistrements écrits</li>
-<li><strong>NbreOctectsLus</strong> : nombre d'octets lus</li>
-<li><strong>NbreOctectsEcrits</strong> : nombre d'octets écrits</li>
-</ul>
-<h2>Méthodes essentielles pour la manipulation de fichiers</h2>
-<h3>Méthodes Ouvrir et Fermer pour une gestion sécurisée des flux de données via ADODB.</h3>
-<ul>
-<li><strong>Ouvrir</strong> : ouvrir un fichier via ADODB</li>
-<li><strong>Fermer</strong> : fermer un fichier</li>
-</ul>
-<h3>Lecture des données : extraire efficacement les données de vos fichiers.</h3>
-<ul>
-<li><strong>LireFichier</strong> : lire l'integralité d'un fichier (texte ou binaire)</li>
-<li><strong>LireEnregistrement</strong> : lire le prochain enregistrement (jusqu'au prochain séparateur de lignes) d'un fichier texte</li>
-<li><strong>FinFichier</strong> : fin du fichier texte atteinte</li>
-<li><strong>Lire</strong> : lire n caractères d'un fichier (texte ou binaire)</li>
-</ul>
-<h3>Écriture de données : sauvegarder vos données de manière structurée.</h3>
-<ul>
-<li><strong>Ecrire</strong> : écrire des données dans un flux texte ou binaire</li>
-<li><strong>EcrireEnregistrement</strong> : écrire un enregistrement dans un flux texte</li>
-<li><strong>EnregistrerSous</strong> : enregistrer sous le nom du fichier le contenu du flux ADODB.Stream</li>
-</ul>
-<h3>Méthodes pour afficher des boîtes de dialogue intuitives pour la sélection de fichiers et répertoires.</h3>
-<ul>
-<li><strong>Repertoire</strong> : répertoire sélectionné dans une boîte de dialogue</li>
-<li><strong>SelectionnerFichierEnregistrerSous</strong>: afficher la boîte de dialogue de sélection d'un fichier à enregsitrer sous (avec saisie du nom du fichier)</li>
-<li><strong>SelectionnerFichier</strong> : afficher la boîte de dialogue de sélection d'un fichier</li>
-<li><strong>SelectionnerRepertoire</strong> : afficher la boîte de dialogue de sélection d'un répertoire</li>
-</ul>
-<h2>Fonctionnalités de gestion des fichiers</h2>
-<ul>
-<li><strong>EstFichierVolumineux</strong> : vérifier si un fichier dépasse 4 Go (taille maximale des fichiers texte via ADODB.stream)</li>
-<li><strong>FichierExiste</strong> : vérifier si le fichier dont le nom est "NomFichier" existe</li>
-<li><strong>RepertoireExiste</strong> : vérifier si le répertoire dont le nom est "NomRepertoire" existe</li>
-<li><strong>LongueurFichier</strong> : retourner la longueur d'un fichier en octets</li>
-</ul>
+# 📁 ADODB – Classe VBA avancée pour la gestion des fichiers texte et binaires
+
+![VBA](https://img.shields.io/badge/VBA-Excel-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+Une classe VBA complète et robuste permettant de lire, écrire et manipuler des fichiers texte ou binaires via ADODB.Stream.  
+Elle offre une interface simple, cohérente et sécurisée pour gérer les fichiers dans vos projets VBA, tout en intégrant des boîtes de dialogue natives et un suivi précis des opérations.
+
+---
+
+## ⭐ Pourquoi utiliser cette classe ?
+
+### ✔️ Une alternative moderne aux fonctions VBA natives
+Les méthodes `Open`, `Input`, `Line Input`, `Print` sont limitées et peu fiables selon l’encodage.  
+`ADODB.Stream` offre une gestion plus stable, plus rapide et compatible avec les encodages modernes.
+
+### ✔️ Gestion automatique des encodages
+UTF‑8, UTF‑16, ANSI, binaire…  
+La classe encapsule toute la complexité et vous permet de choisir simplement l’encodage souhaité.
+
+### ✔️ Interface utilisateur intégrée
+Sélection de fichiers, enregistrement sous, choix de répertoire…  
+Sans API Windows ni code complexe.
+
+### ✔️ API unifiée
+Même logique pour le texte et le binaire.  
+Plus besoin de jongler entre plusieurs syntaxes VBA.
+
+### ✔️ Sécurité et robustesse
+- Vérification d’existence des fichiers et répertoires  
+- Gestion propre des flux  
+- Compteurs d’octets et d’enregistrements  
+- Détection de fin de fichier  
+
+### ✔️ Idéal pour les projets professionnels
+La classe est pensée pour être :
+- réutilisable  
+- stable  
+- documentée  
+- facile à intégrer  
+
+---
+
+## ✨ Fonctionnalités principales
+
+### 🔧 Configuration du fichier
+- TypeFichier : texte ou binaire  
+- Encodage / EncodageTxt  
+- SeparateurLigne  
+
+### 🔒 Gestion des accès
+- TypeAcces : lecture ou écriture  
+- NomFichier  
+- Fichier : accès direct à ADODB.Stream  
+
+### 🖥️ Interface utilisateur
+- SelectionnerFichier  
+- SelectionnerFichierEnregistrerSous  
+- SelectionnerRepertoire  
+
+### 📊 Suivi des opérations
+- NbreEnregLus / NbreEnregEcrits  
+- NbreOctetsLus / NbreOctetsEcrits  
+
+### 🧪 Utilitaires
+- FichierExiste  
+- RepertoireExiste  
+- EstFichierVolumineux  
+- LongueurFichier  
+
+---
+
+## 🚀 Exemples d’utilisation
+
+### Ecriture puis lecture d'un fichier texte
+
+```vba
+    ' Déclaration d'un objet ADODB
+    Dim oFichier As New ADODB
+    ' Enregistrement et nom du fichier
+    Dim sEnreg As String, sNomFichier As String
+    
+    ' Créer un fichier texte
+    
+    ' Ouverture du fichier CSV en écriture
+    With oFichier
+        .TypeFichier = AD_TYPE_TEXT
+        .TypeAcces = AD_MODE_WRITE
+        .Encodage = AD_UTF_8
+        .Ouvrir
+        ' Ecriture dans le flux ADODB de l'entête du fichier texte
+        sEnreg = "Marque;Modele;Categorie;Carburant;Puissance" & vbCrLf
+        .EcrireEnregistrement (sEnreg)
+        ' Ecriture des donnees dans le flux ADODB
+        sEnreg = "Marque1;Modèle1;SUV;Essence;129 ch" & vbCrLf
+        .EcrireEnregistrement (sEnreg)
+        sEnreg = "Marque2;Modèle2;SUV;Essence;89 ch" & vbCrLf
+        .EcrireEnregistrement (sEnreg)
+        ' Sélectionner le nom du fichier
+        .NomInitialFichier = Environ("OneDrive") & "\Documents\tests.txt"
+        .ExtensionFiltre = "*.txt"
+        .TitreBoiteDeDialogue = "Enregistrer le fichier sous"
+        .SelectionnerFichierEnregistrerSous
+        ' Si le nom du fichier n'a pas été sélectionné alors on quitte
+        If .NomFichier = "" Then Exit Sub
+        ' Récupère le nom du fichier afin de pouvoir le lire dans l'étape suivante
+        sNomFichier = .NomFichier
+        ' Enregistrement du flux ADODB
+        .EnregistrerSous
+        ' Fermeture du flux
+        .Fermer
+    End With
+    
+    ' Lire le fichier texte précédemment créé
+    
+    ' Ouverture du fichier en lecture
+    With oFichier
+        .TypeFichier = AD_TYPE_TEXT
+        .TypeAcces = AD_MODE_READ
+        .Encodage = AD_UTF_8
+        .SeparateurLigne = AD_CR_LF
+        .NomFichier = sNomFichier
+        .Ouvrir
+    End With
+    
+    ' Lecture des enregsitrements
+    While Not oFichier.FinFichier
+        sEnreg = oFichier.LireEnregistrement
+        ' Afficher l'enregsitrement lu dans la console VBA
+        Debug.Print sEnreg
+    Wend
+    
+    ' Fermeture du fichier
+    oFichier.Fermer
+    
+    ' Libérer les ressources
+    Set oFichier = Nothing
+```
+
+---
+
+## 📦 Structure du projet
+
+```
+ADODB/
+ ├── ADODB.cls
+ ├── AdoDB_Enum.bas
+ ├── ExempleADODB.bas
+ ├── LICENSE
+ └── README.md
+```
+
+---
+
+## 🛠️ Prérequis
+
+- Microsoft Excel / VBA  
+- Référence Microsoft ActiveX Data Objects x.x Library
+
+---
+
+## 📄 Licence
+
+Projet distribué sous licence MIT.
+
+---
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues :  
+- suggestions  
+- corrections  
+- nouvelles fonctionnalités  
+
+Ouvrez une issue ou une pull request.
