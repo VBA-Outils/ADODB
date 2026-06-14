@@ -3,7 +3,7 @@
 ![VBA](https://img.shields.io/badge/VBA-Excel-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Une classe VBA complète et robuste permettant de lire, écrire et manipuler des fichiers texte ou binaires via ADODB.Stream.  
+Une classe VBA complète et robuste permettant de lire, écrire et manipuler des fichiers texte ou binaires via ADODB.Stream.
 Elle offre une interface simple, cohérente et sécurisée pour gérer les fichiers dans vos projets VBA, tout en intégrant des boîtes de dialogue natives et un suivi précis des opérations.
 
 ---
@@ -11,15 +11,15 @@ Elle offre une interface simple, cohérente et sécurisée pour gérer les fichi
 ## ⭐ Pourquoi utiliser cette classe ?
 
 ### ✔️ Une alternative moderne aux fonctions VBA natives
-Les méthodes `Open`, `Input`, `Line Input`, `Print` sont limitées et peu fiables selon l’encodage.  
+Les méthodes `Open`, `Input`, `Line Input`, `Print` sont limitées et peu fiables selon l’encodage.
 `ADODB.Stream` offre une gestion plus stable, plus rapide et compatible avec les encodages modernes.
 
 ### ✔️ Gestion automatique des encodages
-UTF‑8, UTF‑16, ANSI, binaire…  
+UTF‑8, UTF‑16, ANSI, binaire…
 La classe encapsule toute la complexité et vous permet de choisir simplement l’encodage souhaité.
 
 ### ✔️ Interface utilisateur intégrée
-Sélection de fichiers, enregistrement sous, choix de répertoire…  
+Sélection de fichiers, enregistrement sous, choix de répertoire…
 Sans API Windows ni code complexe.
 
 ### ✔️ API unifiée
@@ -28,45 +28,60 @@ Chaque propriété est définie avec un Enum afin de disposer de tous les choix 
 Plus besoin de jongler entre plusieurs syntaxes VBA.
 
 ### ✔️ Sécurité et robustesse
-- Vérification d’existence des fichiers et répertoires  
-- Gestion propre des flux  
-- Compteurs d’octets et d’enregistrements  
-- Détection de fin de fichier  
+- Vérification d’existence des fichiers et répertoires
+- Gestion propre des flux
+- Compteurs d’octets et d’enregistrements
+- Détection de fin de fichier
 
 ### ✔️ Idéal pour les projets professionnels
 La classe est pensée pour être :
-- réutilisable  
-- stable  
-- documentée  
-- facile à intégrer  
+- réutilisable
+- stable
+- documentée
+- facile à intégrer
 
 ---
 
 ## ✨ Fonctionnalités principales
 
 ### 🔧 Configuration du fichier
-- TypeFichier : texte ou binaire  
-- Encodage / EncodageTxt : choix de l'encodage avec une Enum ou saisie libre 
+- TypeFichier : texte ou binaire
+- Encodage / EncodageTxt : choix de l'encodage avec une Enum ou saisie libre
 - SeparateurLigne : séparateur de lignes (CR, LC, CR/LF)
 
 ### 🔒 Gestion des accès
-- ModeAcces : lecture, modification ou écriture  
-- NomFichier : nom du fichier physique à traiter 
+- ModeAcces : lecture, modification ou écriture
+- NomFichier : nom du fichier physique à traiter
+- Ouvrir : Ouvrir un fichier via ADODB
+- LireFichier : Lire l'intégralité d'un fichier (texte ou binaire)
+- LireEnregistrement : Lire un fichier texte jusqu'au prochain séparateur
+- FinFichier : Fin du fichier texte atteinte
+- Lire : Lire n caractères d'un fichier (texte ou binaire)
+- Ecrire : Ecrire des données dans un fichier texte ou binaire
+- EcrireEnregistrement : Ecrire un enregistrement dans un fichier texte
+- EnregistrerSous : Enregistrer sous le nom de fichier le contenu de l'objet ADODB.Stream
+- Fermer : Fermer un fichier
+ 
 
 ### 🖥️ Interface utilisateur
-- SelectionnerFichier : sélectionner le nom d'un fichier à lire dans une boite de dialogue Excel 
-- SelectionnerFichierEnregistrerSous : saisir le nom d'un fichier à écrire dans une boite de dialogue Excel 
+- TitreBoiteDeDialogue : Titre affiché dans les boîtes de dialogue
+- LibelleFiltre : Libellé du filtre utilisé pour afficher les fichiers dans une boîte de dialogue
+- ExtensionFiltre : Filtre des extensions de fichier utilisé dans une boîte de dialogue
+- NomInitialFichier : Nom initial du fichier affiché dans une boîte de dialogue lors d'un enregsitrement sous
+- Filtre : Filtre des extensions (parmi celles proposées par Excel) de fichier utilisé dans une boîte de dialogue
+- SelectionnerFichier : sélectionner le nom d'un fichier à lire dans une boite de dialogue Excel
+- SelectionnerFichierEnregistrerSous : saisir le nom d'un fichier à écrire dans une boite de dialogue Excel
 - SelectionnerRepertoire : sélectionner un répertoire à traiter
 
 ### 📊 Suivi des opérations
-- NbreEnregLus / NbreEnregEcrits  
-- NbreOctetsLus / NbreOctetsEcrits  
+- NbreEnregLus / NbreEnregEcrits
+- NbreOctetsLus / NbreOctetsEcrits
 
 ### 🧪 Utilitaires
-- FichierExiste  
-- RepertoireExiste  
-- EstFichierVolumineux  
-- LongueurFichier  
+- FichierExiste
+- RepertoireExiste
+- EstFichierVolumineux
+- LongueurFichier
 
 ---
 
