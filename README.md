@@ -92,7 +92,7 @@ La classe est pensée pour être :
 ```vba
     ' Déclaration d'un objet ADODB
     Dim oFichier As New ADODB
-    ' Enregistrement et nom du fichier
+    ' Enregistrement
     Dim sEnreg As String
     
     ' Créer un fichier texte
@@ -131,6 +131,8 @@ La classe est pensée pour être :
 ```vba
     ' Déclaration d'un objet ADODB
     Dim oFichier As New ADODB
+    ' Enregistrement
+    Dim sEnreg As String
 
     ' Ouverture du fichier en lecture
     With oFichier
