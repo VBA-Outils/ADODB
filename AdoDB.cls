@@ -44,62 +44,58 @@ Attribute VB_Exposed = False
 '-------------------------------------------------------------------------------------------------------------------------
 ' AdoDB : Classe VBA de gestion des flux ADODB (uniquement vers des fichiers)
 '-------------------------------------------------------------------------------------------------------------------------
-
-' Nécessite d'activer la référence "Microsoft Scripting RunTime"
 '
-' Dans l'éditeur de macros (Alt+F11): Menu Outils \ Références
-' Cochez les lignes :
-' -- "Microsoft Scripting RunTime"
-' Cliquez sur le bouton OK pour valider.
+'-------------------------------------------------------------------------------------------------------------------------
+' Propriétés :
+' +--------------------------------+--------------------+----------------------------------------------------------+
+' | Nom                            | Type               | Description                                              |
+' +--------------------------------+--------------------+----------------------------------------------------------+
+' | TypeFichier                    | StreamTypeEnum     | Type du fichier (texte ou binaire)                       |
+' | Encodage                       | CharsetEnum        | Encodage du fichier                                      |
+' | EncodageTxt                    | String             | Encodage libre (UTF-8, ASCII…)                           |
+' | SeparateurLigne                | LineSeparatorsEnum | Séparateur de lignes d'un fichier texte                  |
+' | ModeAcces                      | ConnectModeEnum    | Accès au fichier (lecture, écriture, MAJ)                |
+' | NomFichier                     | String             | Chemin complet du fichier                                |
+' | TitreBoiteDeDialogue           | String             | Titre des boîtes de dialogue                             |
+' | LibelleFiltre                  | String             | Libellé du filtre                                        |
+' | ExtensionFiltre                | String             | Filtre des extensions de fichier utilisé dans une boîte  |
+' |                                |                    | de dialogue                                              |
+' | NomInitialFichier              | String             | Nom proposé dans Enregistrer sous                        |
+' | Repertoire                     | String             | Répertoire sélectionné                                   |
+' | Filtre                         | FilterIndexEnum    | Filtre Excel (xlsx, csv, txt…)                           |
+' | Fichier                        | ADODB.Stream       | Permet d’utiliser un Stream externe                      |
+' | NbreEnregLus                   | Long               | Nombre d’enregistrements lus                             |
+' | NbreEnregEcrits                | Long               | Nombre d’enregistrements écrits                          |
+' | NbreOctectsLus                 | Long               | Octets lus                                               |
+' | NbreOctectsEcrits              | Long               | Octets écrits                                            |
+' +--------------------------------+--------------------+----------------------------------------------------------+
+'
+' Méthodes :
+' +--------------------------------+--------------------------------------------------------------------+
+' | Nom                            | Description                                                        |
+' +--------------------------------+--------------------------------------------------------------------+
+' | Ouvrir                         | Ouvre un fichier via ADODB.Stream                                  |
+' | Lire                           | Lit n caractères                                                   |
+' | LireEnregistrement             | Lit jusqu’au prochain séparateur                                   |
+' | LireFichier                    | Lit tout le fichier                                                |
+' | FinFichier                     | Indique si la fin est atteinte                                     |
+' | Position                       | Déplace le pointeur                                                |
+' | Ecrire                         | Écrit des données                                                  |
+' | EcrireEnregistrement           | Écrit un enregistrement texte                                      |
+' | EnregistrerSous                | Sauvegarde le flux dans un fichier                                 |
+' | Fermer                         | Ferme le flux                                                      |
+' | SelectionnerFichier            | Ouvre une boîte de dialogue                                        |
+' | SelectionnerRepertoire         | Sélectionne un dossier                                             |
+' | EstFichierVolumineux           | Vérifie > 4 Go                                                     |
+' | FichierExiste                  | Vérifie l’existence                                                |
+' | RepertoireExiste               | Vérifie l’existence                                                |
+' | LongueurFichier                | Retourne la taille                                                 |
+' | Extension                      | Retourner l'extension du fichier (en minuscules)                   |
+' +--------------------------------+--------------------------------------------------------------------+
+'
 
 Option Explicit
 Option Compare Text
-
-'-----------------------------------------------------------------------------------------------------------------------------------------------------------
-'
-' Propriétés de la classe :
-' -------------------------
-'   TypeFichier                        : Type du fichier (texte ou binaire)
-'   Encodage                           : Encodage du fichier (enum)
-'   EncodageTxt                        : Encodage du fichier (saisie libre)
-'   SeparateurLigne                    : Séparateur de lignes d'un fichier texte
-'   ModeAcces                          : Accès au fichier (lecture, écriture)
-'   TitreBoiteDeDialogue               : Titre affiché dans les boîtes de dialogue
-'   LibelleFiltre                      : Libellé du filtre utilisé pour afficher les fichiers dans une boîte de dialogue
-'   ExtensionFiltre                    : Filtre des extensions de fichier utilisé dans une boîte de dialogue
-'   NomInitialFichier                  : Nom initial du fichier affiché dans une boîte de dialogue lors d'un enregsitrement sous
-'   Filtre                             : Filtre des extensions (parmi celles proposées par Excel) de fichier utilisé dans une boîte de dialogue
-'   NomFichier                         : nom du fichier (y compris le chemin d'accès)
-'   Repertoire                         : Répertoire sélectionné dans une boîte de dialogue
-'   Fichier                            : Permettre de pointer sur un objet ADODB Stream en dehors de la classe
-'   NbreEnregLus                       : Nombre d'enregistrements lus
-'   NbreEnregEcrits                    : Nombre d'enregistrements écrits
-'   NbreOctectsLus                     : Nombre d'octets lus
-'   NbreOctectsEcrits                  : Nombre d'octets écrits
-'
-' Méthodes de la classe :
-' -----------------------
-'   Ouvrir                             : Ouvrir un fichier via ADODB
-'   LireFichier                        : Lire l'intégralité d'un fichier (texte ou binaire)
-'   LireEnregistrement                 : Lire un fichier texte jusqu'au prochain séparateur
-'   FinFichier                         : Fin du fichier texte atteinte
-'   Lire                               : Lire n caractères d'un fichier (texte ou binaire)
-'   LireEnregistrement                 : Lire le prochain enregistrement (jusqu'au prochain séparateur de lignes) d'un fichier texte
-'   LireFichier                        : Lire l'intégralité d'un fichier texte ou binaire
-'   Fermer                             : Fermer un fichier
-'   Ecrire                             : Ecrire des données dans un fichier texte ou binaire
-'   EcrireEnregistrement               : Ecrire un enregistrement dans un fichier texte
-'   EnregistrerSous                    : Enregistrer sous le nom de fichier le contenu de l'objet ADODB.Stream
-'   SelectionnerFichierEnregistrerSous : Afficher la boîte de dialogue de sélection d'un fichier à enregsitrer sous (avec saisie du nom du fichier)
-'   SelectionnerFichier                : Afficher la boîte de dialogue de sélection d'un fichier
-'   SelectionnerRepertoire             : Afficher la boîte de dialogue de sélection d'un répertoire
-'   EstFichierVolumineux               : Vérifier si un fichier dépasse 4 Go (taille maximale des fichiers texte via ADODB.stream)
-'   FichierExiste                      : Vérifier si le fichier dont le nom est "NomFichier" existe
-'   RepertoireExiste                   : Vérifier si le répertoire dont le nom est "NomRépertoire" existe
-'   LongueurFichier                    : Retourner la longueur d'un fichier en octets
-'   Extension                          : Retourner l'extension du fichier (en minuscules)
-'
-'-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Const NON_DEFINI = 0
 
@@ -162,9 +158,10 @@ Private pNbreOctectsLus As Long
 Private pNbreOctectsEcrits As Long
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Pointer sur un objet AdoDB externe à la classe
-'-------------------------------------------------------------------------------------------------------------------------
-' FichierAdoDB : Objet AdoDB sur lequel pointer
+' Propriété : Fichier
+' Rôle      : Pointer sur un objet AdoDB externe à la classe
+' Paramètre : FichierAdoDB
+' Erreurs   :
 '-------------------------------------------------------------------------------------------------------------------------
 Property Set Fichier(FichierAdodb As Object)
 
@@ -173,9 +170,12 @@ Property Set Fichier(FichierAdodb As Object)
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : Type de fichier
-'-------------------------------------------------------------------------------------------------------------------------
-' TypeFichier : Type de fichier (texte ou binaire)
+' Propriété : TypeFichier
+' Rôle      : Définit le type de fichier (texte ou binaire).
+' Paramètre : TypeFichier (StreamTypeEnum)
+' Erreurs   : -100 encodage défini pour un fichier binaire
+'             -101 séparateur défini pour un fichier binaire
+'             -102 type de fichier invalide
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let TypeFichier(TypeFichier As StreamTypeEnum)
 
@@ -204,9 +204,12 @@ Property Get TypeFichier() As StreamTypeEnum
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : Encodage (Enum)
-'-------------------------------------------------------------------------------------------------------------------------
-' EncodageNum : valeur numérique définie dans CharsetEnum de l'encodage du fichier
+' Propriété : Encodage
+' Rôle      : Définit l'encodage du fichier texte via CharsetEnum.
+' Paramètre : EncodageNum (CharsetEnum)
+' Erreurs   : -110 encodage non renseigné
+'             -111 encodage défini pour un fichier binaire
+'             -112 encodage absent de l'enum
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let Encodage(EncodageNum As CharsetEnum)
 
@@ -236,11 +239,12 @@ Property Get Encodage() As CharsetEnum
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : Encodage au format texte
-'-------------------------------------------------------------------------------------------------------------------------
-' Encodage : libellé de l'encodage à utiliser pour accéder au fichier (utf-8, ascii, etc)
-'-------------------------------------------------------------------------------------------------------------------------
-' Aucun contrôle n'est réalisé, l'encodage est transmis tel quel à AdoDB qui va retourner une erreur s'il n'est pas valide.
+' Propriété : EncodageTxt
+' Rôle      : Définit l'encodage libre (UTF-8, ASCII…).
+'             Aucun contrôle n'est réalisé, l'encodage est transmis tel quel à AdoDB qui va retourner une erreur s'il n'est pas valide.
+' Paramètre : Encodage (String)
+' Erreurs   : -120 encodage vide
+'             -121 encodage défini pour un fichier binaire
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let EncodageTxt(Encodage As String)
 
@@ -264,9 +268,11 @@ Property Get EncodageTxt() As String
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : Séparateur de lignes (caractères de fin de ligne)
-'-------------------------------------------------------------------------------------------------------------------------
-' SeparateurLigne : valeur numérique définie dans LineSeparatorEnum du séparateur de ligne
+' Propriété : SeparateurLigne
+' Rôle      : Définit le séparateur de lignes pour les fichiers texte.
+' Paramètre : SeparateurLigne (LineSeparatorsEnum)
+' Erreurs   : -130 séparateur défini pour un fichier binaire
+'             -131 séparateur invalide
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let SeparateurLigne(SeparateurLigne As LineSeparatorsEnum)
 
@@ -289,9 +295,10 @@ Property Get SeparateurLigne() As LineSeparatorsEnum
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : mode d'accès au flux
-'-------------------------------------------------------------------------------------------------------------------------
-' ModeAcces : valeur numérique définie dans ConnectModeEnum du mode d'accès à un flux AdoDB
+' Propriété : ModeAcces
+' Rôle      : Définit le mode d'accès au fichier (lecture/écriture).
+' Paramètre : ModeAcces (ConnectModeEnum)
+' Erreurs   : -140 mode invalide
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let ModeAcces(ModeAcces As ConnectModeEnum)
 
@@ -308,7 +315,10 @@ Property Get ModeAcces() As ConnectModeEnum
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : nom physique du fichier à traiter
+' Propriété : NomFichier
+' Rôle      : Définit le chemin complet du fichier à traiter.
+' Paramètre : NomFichier (String)
+' Erreurs   : -150 nom vide
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let NomFichier(NomFichier As String)
 
@@ -326,7 +336,10 @@ Property Get NomFichier() As String
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : titre de la boîte de dialogue qui permet de sélectionner un fichier / répertoire
+' Propriété : TitreBoiteDeDialogue
+' Rôle      : Titre de la boîte de dialogue qui permet de sélectionner un fichier / répertoire
+' Paramètre : Titre (string)
+' Erreurs   : -160 Titre non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let TitreBoiteDeDialogue(Titre As String)
 
@@ -339,14 +352,17 @@ Property Let TitreBoiteDeDialogue(Titre As String)
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : libellé du filtre à appliquer afin de sélectionner les fichiers
+' Propriété : LibelleFiltre
+' Rôle      : Libellé du filtre à appliquer afin de sélectionner les fichiers
+' Paramètre : LibelleFiltre (string)
+' Erreurs   : -170 Libellé non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
-Property Let LibelleFiltre(sLibelleFiltre As String)
+Property Let LibelleFiltre(LibelleFiltre As String)
 
-    If Trim(sLibelleFiltre) = "" Then
+    If Trim(LibelleFiltre) = "" Then
         Err.Raise -170, "AdoDB.LibelleFiltre", "Le libellé du filtre doit être renseigné."
     Else
-        pLibelleFiltre = sLibelleFiltre
+        pLibelleFiltre = LibelleFiltre
     End If
     
 End Property
@@ -356,14 +372,17 @@ Property Get LibelleFiltre() As String
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : Filtre des extensions séparées par une virgule, eg. *.csv,*.txt
+' Propriété : ExtensionFiltre
+' Rôle      : Filtre des extensions séparées par une virgule, eg. *.csv,*.txt
+' Paramètre : ExtensionFiltre (String)
+' Erreurs   : -180 Extension non renseignée
 '-------------------------------------------------------------------------------------------------------------------------
-Property Let ExtensionFiltre(sExtensionFiltre As String)
+Property Let ExtensionFiltre(ExtensionFiltre As String)
 
-    If Trim(sExtensionFiltre) = "" Then
+    If Trim(ExtensionFiltre) = "" Then
         Err.Raise -180, "AdoDB.ExtensionFiltre", "Les extensions doivent être renseignées."
     Else
-        pExtensionFiltre = sExtensionFiltre
+        pExtensionFiltre = ExtensionFiltre
     End If
     
 End Property
@@ -373,7 +392,10 @@ Property Get ExtensionFiltre() As String
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : nom du fichier prérenseigné dans la boite de dialogue pour enregistrer sous
+' Propriété : NomInitialFichier
+' Rôle      : Nom du fichier prérenseigné dans la boite de dialogue pour enregistrer sous
+' Paramètre : NomInitialFichier (String)
+' Erreurs   : -190 Nom initial non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let NomInitialFichier(NomInitialFichier As String)
 
@@ -390,15 +412,18 @@ Property Get NomInitialFichier() As String
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : chemin d'un répertoire (dossier)
+' Propriété : Repertoire
+' Rôle      : Définit un répertoire ou récupère celui sélectionné dans la boite de dialogue
+' Paramètre : Repertoire (string)
+' Erreurs   : -200 Répertoire non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
 Property Let Repertoire(Repertoire As String)
     
     If Trim(Repertoire) = "" Then
         Err.Raise -200, "AdoDB.Repertoire", "Le répertoire n'est pas renseigné."
+    Else
+        pRepertoire = Repertoire
     End If
-    
-    pRepertoire = Repertoire
     
 End Property
 
@@ -407,14 +432,17 @@ Property Get Repertoire() As String
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Propriété : Filtre à appliquer lors de la sélection des fichiers à enregistrer sous
+' Propriété : Filtre
+' Rôle      : Filtre à appliquer lors de la sélection des fichiers à enregistrer sous
+' Paramètre : IndexFiltre (FilterIndexEnum)
+' Erreurs   : -210 Index invalide
 '-------------------------------------------------------------------------------------------------------------------------
-Property Let Filtre(lIndexFiltre As FilterIndexEnum)
+Property Let Filtre(IndexFiltre As FilterIndexEnum)
 
-    If lIndexFiltre < 0 Or lIndexFiltre > 29 Then
-        Err.Raise -210, "AdoDB.Filtre", "Le filtre " & lIndexFiltre & " est invalide."
+    If IndexFiltre < 0 Or IndexFiltre > 29 Then
+        Err.Raise -210, "AdoDB.Filtre", "Le filtre " & IndexFiltre & " est invalide."
     Else
-        pIndexFiltre = lIndexFiltre
+        pIndexFiltre = IndexFiltre
     End If
     
 End Property
@@ -424,15 +452,61 @@ Property Get Filtre() As FilterIndexEnum
 End Property
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Ouverture d'un fichier via ADODB
+' Propriété : NbreEnregLus
+' Rôle      : Retourne le nombre d'enregistrements lus (si fichier texte)
+' Paramètre : N/A
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
-' Poopriétés obligatoires :
-'   TypeFichier
-'   SeparateurLigne si TypeFichier = Texte et lecture par ligne
-'   Encodage si TypeFichier = Texte
-'   ModeAcces
-'   NomFichier si accès en lecture
+Property Get NbreEnregLus() As Long
+    NbreEnregLus = pNbreEnregLus
+End Property
+
 '-------------------------------------------------------------------------------------------------------------------------
+' Propriété : NbreEnregEcrits
+' Rôle      : Retourne le nombre d'enregistrements écrits (si fichier texte)
+' Paramètre : N/A
+' Erreurs   : N/A
+'-------------------------------------------------------------------------------------------------------------------------
+Property Get NbreEnregEcrits() As Long
+    NbreEnregEcrits = pNbreEnregEcrits
+End Property
+
+'-------------------------------------------------------------------------------------------------------------------------
+' Propriété : NbreOctectsLus
+' Rôle      : Retourne le nombre d'octets lus (si fichier texte)
+' Paramètre : N/A
+' Erreurs   : N/A
+'-------------------------------------------------------------------------------------------------------------------------
+Property Get NbreOctectsLus() As Long
+    NbreOctectsLus = pNbreOctectsLus
+End Property
+
+'-------------------------------------------------------------------------------------------------------------------------
+' Propriété : NbreOctectsEcrits
+' Rôle      : Retourne le nombre d'octets écrits (si fichier texte)
+' Paramètre : N/A
+' Erreurs   : N/A
+'-------------------------------------------------------------------------------------------------------------------------
+Property Get NbreOctectsEcrits() As Long
+    NbreOctectsEcrits = pNbreOctectsEcrits
+End Property
+
+'------------------------------------------------------------------------------
+' Méthode   : Ouvrir
+' Rôle      : Ouvre un fichier via ADODB.Stream selon les propriétés définies.
+' Paramètre : N/A
+' Propriétés obligatoires :
+'   - TypeFichier
+'   - Encodage (si texte)
+'   - SeparateurLigne (si lecture par ligne)
+'   - ModeAcces
+'   - NomFichier (si lecture)
+' Erreurs   : -220 type de fichier non défini
+'             -221 encodage non défini
+'             -222 mode d'accès non défini
+'             -223 nom de fichier non défini
+'             -224 fichier inexistant
+'------------------------------------------------------------------------------
 Public Sub Ouvrir()
     
     Select Case True
@@ -478,36 +552,45 @@ Public Sub Ouvrir()
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Lecture des n prochains caractères d'un fichier texte ADODB
+' Méthode   : Lire
+' Rôle      : Lit les n caractères suivants du fichier
+' Propriétés obligatoires :
+'   - TypeFichier
+' Paramètre : NbreCarALire (long)
+' Résultat  : n caractères lus
+' Erreurs   : -230 fichier non ouvert
+'             -231 nombre de caractères invalide
+'             -232 lecture partielle impossible en binaire
 '-------------------------------------------------------------------------------------------------------------------------
-' Paramètre(s) :
-'   lNbreCarALire    : nombre de caractères à lire dans le fichier ou jusqu'à la fin de fichier
-'-------------------------------------------------------------------------------------------------------------------------
-Public Function Lire(lNbreCarALire As Long) As String
+Public Function Lire(NbreCarALire As Long) As String
     
     Select Case True
         ' Accès impossible à un fichier non ouvert
         Case pStatutFichier <> OPENED_FILE
             Err.Raise -230, "AdoDB.Lire", "Le fichier n'a pas été ouvert."
         ' Le nombre de caractères à lire doit être > 0
-        Case lNbreCarALire <= 0
+        Case NbreCarALire <= 0
             Err.Raise -231, "AdoDB.Lire", "Le nombre de caractères à lire n'est pas valide."
         ' Seule la lecture complète d'un fichier binaire est possible
         Case pTypeFichier = AD_TYPE_BINARY
             Err.Raise -232, "AdoDB.Lire", "La lecture partielle d'un fichier binaire n'est pas possible."
         Case Else
             ' Lire les n caractères suivants
-            Lire = pFichierADODB.ReadText(lNbreCarALire)
+            Lire = pFichierADODB.ReadText(NbreCarALire)
             pNbreOctectsLus = pNbreOctectsLus + Len(Lire)
     End Select
     
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Lecture du prochain enregistrement d'un fichier texte ADODB
-'-------------------------------------------------------------------------------------------------------------------------
-' Propriété utilisée :
-'   SeparateurLigne
+' Méthode   : LireEnregistrement
+' Rôle      : Lit un enregistrement jusqu'au prochain séparateur.
+' Propriétés obligatoires :
+'   - SeparateurLigne
+'   - TypeFichier
+' Erreurs   : -240 fichier non ouvert
+'             -241 séparateur non défini
+'             -242 lecture impossible en binaire
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function LireEnregistrement() As String
     
@@ -531,7 +614,11 @@ Public Function LireEnregistrement() As String
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-'  Fin de fichier atteinte ?
+' Méthode   : FinFichier
+' Rôle      : fin du fichier atteinte
+' Paramètre : N/A
+' Résultat  : Vrai si la fin du fichier est atteinte sinon Faux
+' Erreurs   : -250 Fichier non ouvert
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function FinFichier() As Boolean
     
@@ -545,7 +632,11 @@ Public Function FinFichier() As Boolean
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Position dans le fichier
+' Méthode   : Position
+' Rôle      : Repositionne sur le n-ième caractère
+' Paramètre : Position (long)
+' Résultat  : La prochaine lecture / écriture sera réalisée à la position inidiquée
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub Position(Position As Long)
 
@@ -554,7 +645,12 @@ Public Sub Position(Position As Long)
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Lecture intégrale d'un fichier ADODB
+' Méthode   : LireFichier
+' Rôle      : Lit l'intégralité du fichier (texte ou binaire).
+' Propriétés obligatoires :
+'   - TypeFichier
+' Paramètre : N/A
+' Erreurs   : -260 fichier non ouvert
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function LireFichier() As Variant
     
@@ -575,10 +671,14 @@ Public Function LireFichier() As Variant
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Ecrire un enregistrement dans un flux ADODB.stream
-'-------------------------------------------------------------------------------------------------------------------------
-' Paramètres :
-'   Enregistrement (Obligatoire) : enregistrement à écrire (XML, json, texte, etc)
+' Méthode   : EcrireEnregistrement
+' Rôle      : Ecriture d'un enregistrement (fichier texte) dans le flux AdoDB.Stream
+' Paramètre : Enregistrement (string)
+' Propriétés obligatoires :
+'   - TypeFichier
+' Résultat  : Ecriture du flux AdoDB.Stream
+' Erreurs   : -270 Fichier non ouvert
+'             -271 Fichier binaire invalide
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub EcrireEnregistrement(Enregistrement As String)
     
@@ -599,10 +699,14 @@ Public Sub EcrireEnregistrement(Enregistrement As String)
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Ecrire des données dans un flux ADODB.stream
-'-------------------------------------------------------------------------------------------------------------------------
-' Paramètres :
-'   Donnees (Obligatoire) : données à écrire (image, pdf, etc)
+' Méthode   : Ecrire
+' Rôle      : Ecriture de données (fichier binaire) dans le flux AdoDB.Stream
+' Paramètre : Donnees (variant)
+' Propriétés obligatoires :
+'   - TypeFichier
+' Résultat  : Ecriture du flux AdoDB.Stream
+' Erreurs   : -280 fichier non ouvert
+'             -281 Fichier texte invalide
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub Ecrire(Donnees As Variant)
     
@@ -622,11 +726,17 @@ Public Sub Ecrire(Donnees As Variant)
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Enregistrer le flux ADODB.Stream sous le nom du fichier
-'-------------------------------------------------------------------------------------------------------------------------
-' Propriétés utilisées :
-'   TypeFichier     (obligatoire)
-'   NomFichier      (obligatoire)
+' Méthode   : EnregistrerSous
+' Rôle      : Enregistrer le flux AdoDB.stream dans un fichier physique avec écrasement
+' Paramètre : N/A
+' Propriétés obligatoires :
+'   - NomFichier
+'   - TypeFichier
+'   - Encodage
+' Résultat  : Fichier physique écrit
+' Erreurs   : -290 fichier non ouvert
+'             -291 Nom de fichier non renseigné
+'             -292 type de fichier non défini
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub EnregistrerSous()
 
@@ -668,7 +778,11 @@ Public Sub EnregistrerSous()
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-'  Fermer un objet ADODB
+' Méthode   : fermer
+' Rôle      : Fermer le flux AdoDB.Stream
+' Paramètre : N/A
+' Résultat  : Flux fermé
+' Erreurs   : -300 fichier non ouvert
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub Fermer()
     
@@ -683,31 +797,11 @@ Public Sub Fermer()
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-'  Compteurs
-'-------------------------------------------------------------------------------------------------------------------------
-
-Public Function NbreEnregLus() As Long
-    NbreEnregLus = pNbreEnregLus
-End Function
-
-Public Function NbreEnregEcrits() As Long
-    NbreEnregEcrits = pNbreEnregEcrits
-End Function
-
-Public Function NbreOctectsLus() As Long
-    NbreOctectsLus = pNbreOctectsLus
-End Function
-
-Public Function NbreOctectsEcrits() As Long
-    NbreOctectsEcrits = pNbreOctectsEcrits
-End Function
-
-'-------------------------------------------------------------------------------------------------------------------------
-' Affiche la boite de dialogue qui permet de sélectionner le fichier afin d'enregistrer sous
-'-------------------------------------------------------------------------------------------------------------------------
-' Propriétés utilisées :
-'   Filtre              (Facultatif)
-'   TitreBoiteDialogue  (Facultatif)
+' Méthode   : SelectionnerFichierEnregistrerSous
+' Rôle      : Affiche la boite de dialogue qui permet de sélectionner le fichier afin d'enregistrer sous
+' Paramètre : N/A
+' Résultat  : renseigne le nom du fichier
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub SelectionnerFichierEnregistrerSous()
 
@@ -736,12 +830,11 @@ Public Sub SelectionnerFichierEnregistrerSous()
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Affiche la boite de dialogue qui permet de sélectionner un fichier qui correspond aux filtres
-'-------------------------------------------------------------------------------------------------------------------------
-' Propriétés utilisées :
-'   LibelleFiltre       (Facultatif)
-'   ExtensionFiltre     (Facultatif)
-'   TitreBoiteDialogue  (Facultatif)
+' Méthode   : SelectionnerFichier
+' Rôle      : Affiche la boite de dialogue qui permet de sélectionner un fichier qui correspond aux filtres
+' Paramètre : N/A
+' Résultat  : renseigne le nom du fichier
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub SelectionnerFichier()
 
@@ -780,10 +873,11 @@ Public Sub SelectionnerFichier()
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Affiche la boite de dialogue qui permet de sélectionner un répertoire
-'-------------------------------------------------------------------------------------------------------------------------
-' Propriété utilisée :
-'   TitreBoiteDialogue  (Facultatif)
+' Méthode   : SelectionnerRepertoire
+' Rôle      : Affiche la boite de dialogue qui permet de sélectionner un répertoire
+' Paramètre : N/A
+' Résultat  : renseigne le répertoire
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Public Sub SelectionnerRepertoire()
 
@@ -810,10 +904,12 @@ Public Sub SelectionnerRepertoire()
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Vérifie si un fichier est trop volumineux pour être traité par ADODB
-'-------------------------------------------------------------------------------------------------------------------------
-' Propriété utilisée :
-'   NomFichier          (Obligatoire)
+' Méthode   : EstFichierVolumineux
+' Rôle      : Indique si un fichier dépasse 4 Go (peut poser pb avec AdoDB.Stream)
+' Propriété obligatoire :
+'   - NomFichier
+' Résultat  : Vrai si le fichier a une taille > 4 Go sinon Faux
+' Erreurs   : -310 nom de fichier non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function EstFichierVolumineux(Optional NomFichier As String) As Boolean
     
@@ -837,12 +933,13 @@ Public Function EstFichierVolumineux(Optional NomFichier As String) As Boolean
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Retourne la longueur d'un fichier (en octets)
-'-------------------------------------------------------------------------------------------------------------------------
-' Paramètre utilisé :
-'   NomFichier         (Facultatif)
-' Propriété utilisée :
-'   NomFichier          (Facultatif)
+' Méthode   :
+' Rôle      : Retourne la longueur d'un fichier (en octets)
+' Paramètre : NomFichiser (string)
+' Propriétés facultatives :
+'   - NomFichier
+' Résultat  : taille du fichier
+' Erreurs   : -320 nom de fichier non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function LongueurFichier(Optional NomFichier As String) As Double
 
@@ -865,12 +962,13 @@ Public Function LongueurFichier(Optional NomFichier As String) As Double
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Vérifie si un fichier existe
-'-------------------------------------------------------------------------------------------------------------------------
-' Paramètre utilisé :
-'   NomFichier         (Facultatif)
-' Propriété utilisée :
-'   NomFichier          (Facultatif)
+' Méthode   : FichierExiste
+' Rôle      : Vérifie si un fichier existe
+' Paramètre : NomFichier (string)
+' Propriétés facultatives :
+'   - NomFichier
+' Résultat  : Vrai si le fichier physique existe sinon Faux
+' Erreurs   : -330 nom du fichier non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function FichierExiste(Optional NomFichier As String) As Boolean
     
@@ -890,10 +988,13 @@ Public Function FichierExiste(Optional NomFichier As String) As Boolean
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Vérifie si un répertoire existe
-'-------------------------------------------------------------------------------------------------------------------------
-' Propriété utilisée :
-'   Repertoire          (Obligatoire)
+' Méthode   : RepertoireExiste
+' Rôle      : Vérifie si un répertoire existe
+' Paramètre : Repertoire (string)
+' Propriétés facultatives :
+'   - Repertoire
+' Résultat  : Vrai si le répertoire existe sinon Faux
+' Erreurs   : -340 nom du répertoire non renseigné
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function RepertoireExiste(Optional Repertoire As String) As Boolean
     
@@ -913,8 +1014,15 @@ Public Function RepertoireExiste(Optional Repertoire As String) As Boolean
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Convertir un nom de chemin défini par une URL OneDrive ou SharePoint vers un nom de chemin Windows
-' Exemple : https://xxx-my.sharepoint.com/personal/ devient c:\Users\xxxx\OneDrive - xxx
+' Méthode   : ConvertirUrlSharePoint
+' Rôle      : Convertit un nom de chemin défini par une URL OneDrive ou SharePoint vers un nom de chemin Windows
+' Paramètre : Chemin (string)
+' Étapes    :
+'   1. Convertit les URL de type Sharepoint
+'   2. Convertit les URL des espaces de travail partagés
+'   3. Convertit les URL de OneDrive personnel
+' Résultat  : Chemin du fichier au format Windows
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Private Function ConvertirUrlSharePoint(Chemin As String) As String
 
@@ -923,7 +1031,7 @@ Private Function ConvertirUrlSharePoint(Chemin As String) As String
     ' Si le chemin du fichier commence par http
     If LCase$(Left(Chemin, 4)) = "http" Then
         Select Case True
-        ' Espace personnel sur SharePoint (i.e. OneDrive Commercial) ?
+        ' Espace personnel sur SharePoint (i.e. OneDrive Commercial)
         Case Chemin Like "https://*-my.sharepoint.com/personal/*"
             ' Recherche la chaîne "/Documents/documents" afin d'obtenir le début de l'arborescence dans le dossier des documents
             lPosDoc = InStr(1, Chemin, "/Documents/Documents/", vbTextCompare) + Len("/Documents")
@@ -951,7 +1059,11 @@ Private Function ConvertirUrlSharePoint(Chemin As String) As String
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Retourne l'extension du fichier
+' Méthode   : Extension
+' Rôle      : Retourne l'extension du fichier
+' Paramètre : N/A
+' Résultat  : Extension du fichier
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Public Function Extension() As String
     
@@ -966,7 +1078,15 @@ Public Function Extension() As String
 End Function
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Initialisation de la classe : création des objets ADODB.Stream et le dictionnaire des encodages   *
+' Méthode   : Class_Initialize
+' Rôle      : Création des objets ADODB.Stream et le dictionnaire des encodages.
+' Paramètre : N/A
+' Étapes    :
+'   1. Création d'n objet AdoDB.stream
+'   2. Ajout des enum des encodages dans un dictionnaire
+'   3. Initialisation des compteurs
+' Résultat  : Flux AdoDB.stream créé, liste des encodages prédéfinie
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Private Sub Class_Initialize()
     
@@ -1006,7 +1126,10 @@ Private Sub Class_Initialize()
 End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
-' Terminaison de la classe : libérer la mémoire en détruisant les objets
+' Méthode   : Class_Terminate
+' Rôle      : Libérer les ressources
+' Paramètre : N/A
+' Erreurs   : N/A
 '-------------------------------------------------------------------------------------------------------------------------
 Private Sub Class_Terminate()
 
