@@ -85,6 +85,35 @@ La classe est pensée pour être :
 
 ---
 
+## 🧩 Dépendances
+
+### Classes / Modules nécessaires
+
+- `AdoDB.cls` (cette classe)
+- `AdoDB_Enum.bas` (module contenant les Enum)
+- Référence obligatoire :  
+  **Microsoft ActiveX Data Objects x.x Library**
+
+### Objets utilisés
+
+- `ADODB.Stream`
+- `Scripting.Dictionary`
+
+---
+
+## ⚙️ Installation
+
+1. Importer les fichiers :
+   - `AdoDB.cls`
+   - `AdoDB_Enum.bas`
+
+2. Activer la référence :
+   - **Microsoft ActiveX Data Objects 6.1 Library** (ou version équivalente)
+
+3. Vérifier que les Enum sont bien dans un module standard.
+
+---
+
 ## 🚀 Exemples d’utilisation
 
 ### Ecriture d'un fichier texte
