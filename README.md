@@ -6,6 +6,8 @@
 Une classe VBA complète et robuste permettant de lire, écrire et manipuler des fichiers texte ou binaires via ADODB.Stream.
 Elle offre une interface simple, cohérente et sécurisée pour gérer les fichiers dans vos projets VBA, tout en intégrant des boîtes de dialogue natives et un suivi précis des opérations.
 
+Limites connues : lors de la lecture de fichiers texte, dont la taille est proche de ou dépasse 4 Go, des pertes de données ont été constatées. Certaines parties du fichier sont ignorées par AdoDB.Stream, et par conséquent, ne sont pas restituées par la méthode LireEnregistrement. Ces enregistrements ignorés restent négligeables par rapport à la taille du fichier, mais induisent un manque de fiabilité dans la gestion des fichiers volumineux.
+
 ---
 
 ## ⭐ Pourquoi utiliser cette classe ?
