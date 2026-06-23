@@ -6,7 +6,33 @@
 Une classe VBA complète et robuste permettant de lire, écrire et manipuler des fichiers texte ou binaires via ADODB.Stream.
 Elle offre une interface simple, cohérente et sécurisée pour gérer les fichiers dans vos projets VBA, tout en intégrant des boîtes de dialogue natives et un suivi précis des opérations.
 
-Limites connues : lors de la lecture de fichiers texte, dont la taille est proche de ou dépasse 4 Go, des pertes de données ont été constatées. Certaines parties du fichier sont ignorées par AdoDB.Stream, et par conséquent, ne sont pas restituées par la méthode LireEnregistrement. Ces enregistrements ignorés restent négligeables par rapport à la taille du fichier, mais induisent un manque de fiabilité dans la gestion des fichiers volumineux.
+Avertissement : lors de la lecture de fichiers texte, dont **la taille dépasse 4 Go**, des pertes de données ont été constatées. Certaines parties du fichier sont ignorées par AdoDB.Stream, et par conséquent, ne sont pas restituées par la méthode `LireEnregistrement`. Ces enregistrements ignorés restent négligeables par rapport à la taille du fichier, mais induisent un manque de fiabilité dans la gestion des fichiers volumineux.
+
+---
+
+## 📦 Structure du projet
+
+```
+ADODB/
+ ├── ADODB.cls
+ ├── AdoDB_Enum.bas
+ ├── ExempleADODB.bas
+ ├── LICENSE
+ └── README.md
+```
+
+---
+
+## 🛠️ Prérequis
+
+- Microsoft Excel / VBA  
+- Référence Microsoft ActiveX Data Objects x.x Library
+
+---
+
+## 📄 Licence
+
+Projet distribué sous licence MIT.
 
 ---
 
@@ -189,39 +215,3 @@ La classe est pensée pour être :
     Set oFichier = Nothing
 ```
 
----
-
-## 📦 Structure du projet
-
-```
-ADODB/
- ├── ADODB.cls
- ├── AdoDB_Enum.bas
- ├── ExempleADODB.bas
- ├── LICENSE
- └── README.md
-```
-
----
-
-## 🛠️ Prérequis
-
-- Microsoft Excel / VBA  
-- Référence Microsoft ActiveX Data Objects x.x Library
-
----
-
-## 📄 Licence
-
-Projet distribué sous licence MIT.
-
----
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues :  
-- suggestions  
-- corrections  
-- nouvelles fonctionnalités  
-
-Ouvrez une issue ou une pull request.
