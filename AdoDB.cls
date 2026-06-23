@@ -42,9 +42,16 @@ Attribute VB_Exposed = False
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 '-------------------------------------------------------------------------------------------------------------------------
-' AdoDB : Classe VBA de gestion des flux ADODB (uniquement vers des fichiers)
+' Module de classe : AdoDB
+' Descritpion      : Encapsulage des fonctionnalités AdoDB.Stream dans une classe VBA afin de gérer des fichiers texte et binaire.
+'                    La classe permet de faire abstraction de ADODB en proposant des domaines de valeurs pour chaque propriété.
+'                    Les contrôles réalisés pour chaque propriété et méthode sécurise les appels à AdoDB en signalant les erreurs
+'                    en amont.
+' Limites connues  : La gestion des fichiers de plus de 4 Go n'est pas gérée correctement par AdoDB. Lors de la lecture de gros
+'                    fichiers, une perte de données est généralement constatée. Cela se manifeste par des enregistrements qui
+'                    sont ignorés et par conséquent absents lors de la lecture de tous les enregistrements d'un fichier texte.
 '-------------------------------------------------------------------------------------------------------------------------
-'
+
 '-------------------------------------------------------------------------------------------------------------------------
 ' Propriétés :
 ' +--------------------------------+--------------------+----------------------------------------------------------+
@@ -71,27 +78,27 @@ Attribute VB_Exposed = False
 ' +--------------------------------+--------------------+----------------------------------------------------------+
 '
 ' Méthodes :
-' +--------------------------------+--------------------------------------------------------------------+
-' | Nom                            | Description                                                        |
-' +--------------------------------+--------------------------------------------------------------------+
-' | Ouvrir                         | Ouvre un fichier via ADODB.Stream                                  |
-' | Lire                           | Lit n caractères                                                   |
-' | LireEnregistrement             | Lit jusqu’au prochain séparateur                                   |
-' | LireFichier                    | Lit tout le fichier                                                |
-' | FinFichier                     | Indique si la fin est atteinte                                     |
-' | Position                       | Déplace le pointeur                                                |
-' | Ecrire                         | Écrit des données                                                  |
-' | EcrireEnregistrement           | Écrit un enregistrement texte                                      |
-' | EnregistrerSous                | Sauvegarde le flux dans un fichier                                 |
-' | Fermer                         | Ferme le flux                                                      |
-' | SelectionnerFichier            | Ouvre une boîte de dialogue                                        |
-' | SelectionnerRepertoire         | Sélectionne un dossier                                             |
-' | EstFichierVolumineux           | Vérifie > 4 Go                                                     |
-' | FichierExiste                  | Vérifie l’existence                                                |
-' | RepertoireExiste               | Vérifie l’existence                                                |
-' | LongueurFichier                | Retourne la taille                                                 |
-' | Extension                      | Retourner l'extension du fichier (en minuscules)                   |
-' +--------------------------------+--------------------------------------------------------------------+
+' +--------------------------------+-------------------------------------------------------------------------------+
+' | Nom                            | Description                                                                   |
+' +--------------------------------+-------------------------------------------------------------------------------+
+' | Ouvrir                         | Ouvre un fichier via ADODB.Stream                                             |
+' | Lire                           | Lit n caractères                                                              |
+' | LireEnregistrement             | Lit jusqu’au prochain séparateur                                              |
+' | LireFichier                    | Lit tout le fichier                                                           |
+' | FinFichier                     | Indique si la fin est atteinte                                                |
+' | Position                       | Déplace le pointeur                                                           |
+' | Ecrire                         | Écrit des données                                                             |
+' | EcrireEnregistrement           | Écrit un enregistrement texte                                                 |
+' | EnregistrerSous                | Sauvegarde le flux dans un fichier                                            |
+' | Fermer                         | Ferme le flux                                                                 |
+' | SelectionnerFichier            | Ouvre une boîte de dialogue                                                   |
+' | SelectionnerRepertoire         | Sélectionne un dossier                                                        |
+' | EstFichierVolumineux           | Vérifie > 4 Go                                                                |
+' | FichierExiste                  | Vérifie l’existence d'un fichier                                              |
+' | RepertoireExiste               | Vérifie l’existence d'un répertoire                                           |
+' | LongueurFichier                | Retourne la taille d'un fichier                                               |
+' | Extension                      | Retourner l'extension du fichier (en minuscules)                              |
+' +--------------------------------+-------------------------------------------------------------------------------+
 '
 
 Option Explicit
@@ -1127,9 +1134,7 @@ End Sub
 
 '-------------------------------------------------------------------------------------------------------------------------
 ' Méthode   : Class_Terminate
-' Rôle      : Libérer les ressources
-' Paramètre : N/A
-' Erreurs   : N/A
+' Rôle      : Libère proprement les objets internes.
 '-------------------------------------------------------------------------------------------------------------------------
 Private Sub Class_Terminate()
 
